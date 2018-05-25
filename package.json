@@ -1,0 +1,9 @@
+{
+  "name": "node-remote",
+  "version": "0.0.1",
+  "description": "A remote that can communicate between a client and a smartphone",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^2.1.1"
+  }
+}
