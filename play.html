@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    $(function () {
+      var socket = io();
+      $('form').submit(function(){
+        socket.emit('chat message', $('#m').val());
+        return false;
+      });
+    });
+  </script>
+
+  <body>
+    <div id="userinfo">
+      <form action="">
+        Player Name <input id="username" autocomplete="off" />
+        Host ID <input id="servername" autocomplete="off" />
+        <button>Send</button>
+      </form>
+    </div>
+  </body>
+</html>

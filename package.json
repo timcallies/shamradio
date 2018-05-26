@@ -4,6 +4,7 @@
   "description": "A remote that can communicate between a client and a smartphone",
   "dependencies": {
     "express": "^4.15.2",
+    "mysql": "^2.15.0",
     "socket.io": "^2.1.1"
   }
 }
