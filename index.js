@@ -10,7 +10,7 @@ var playlists = require('./playlists.js');
 var MongoClient = require('mongodb').MongoClient;
 var spotify = require('./spotify-import.js');
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
-const baseUrl="http://10.0.0.53";
+const baseUrl="https://cryptic-plateau-79955.herokuapp.com";
 var favicon = require('serve-favicon');
 
 app.use(cookieParser());
