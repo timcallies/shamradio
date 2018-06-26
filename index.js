@@ -884,7 +884,7 @@ MongoClient.connect(url, function(err, db) {
           hostlist[hostid].possibleTitles=[doc.name];
           if(doc.alternateTitles != undefined) {
             if(doc.alternateTitles.length >0 ) {
-              hostlist[hostid].possibleTitles=[doc.alternateTitles];
+              hostlist[hostid].possibleTitles=[doc.alternateTitles].push(doc.name);
             }
           }
         }
@@ -893,13 +893,13 @@ MongoClient.connect(url, function(err, db) {
           hostlist[hostid].possibleTitles=[doc.album];
           if(doc.alternateAlbums != undefined) {
             if(doc.alternateAlbums.length >0 ) {
-              hostlist[hostid].possibleTitles=[doc.alternateAlbums];
+              hostlist[hostid].possibleTitles=[doc.alternateAlbums].push(doc.album);
             }
           }
         }
 
         if(hostoptions.matchBy=="artist")
-          hostlist[hostid].possibleTitles=[doc.artist];
+          hostlist[hostid].possibleTitles=[doc.artist].push(doc.name);
 
         if(hostoptions.matchBy=="series"){
           hostlist[hostid].possibleTitles=doc.alternateNames;
@@ -907,10 +907,10 @@ MongoClient.connect(url, function(err, db) {
         }
 
         if(hostoptions.matchBy=="player"){
-          hostlist[hostid].possibleTitles=[doc.songid];
+          hostlist[hostid].possibleTitles=[doc.songid].push(doc.name);
           if(doc.alternateIds != undefined) {
             if(doc.alternateIds.length >0 ) {
-              hostlist[hostid].possibleTitles=[doc.alternateIds];
+              hostlist[hostid].possibleTitles=[doc.alternateIds].push(doc.songid);
             }
           }
         }
