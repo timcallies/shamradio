@@ -25,13 +25,17 @@ function hostLocal() {
 }
 
 function playLocal() {
-  document.getElementById("host-input").setAttribute("style", "display: block;");
+  $('#button-group').fadeOut(50);
+  setTimeout(function() {
+    $('#host-input').fadeIn(50);
+    $('#mainscreen-bg').fadeIn(50);
+  },50);
 }
 
 function connectLocal() {
   var hostid = $('#hostname').val().toUpperCase();
   console.log(hostid);
-  socket.emit('joinserverrequest',getCookie('sessionId'),hostid,'');
+  socket.emit('joinserverrequest',getCookie('sessionId'),getCookie('userSession'),hostid,'');
 }
 
 socket.on('createserverresponse', function(){

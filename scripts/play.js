@@ -5,22 +5,15 @@ var hostid;
 
 inputScreen();
 
-function updateSettings(options) {
-  if(options.importFromSpotify)
-    document.getElementById('spotify-button').setAttribute("style", "display: inline-block;");
-  else
-    document.getElementById('spotify-button').setAttribute("style", "display: none;");
-}
-
 socket.emit('playerstatusrequest',getCookie('sessionId'));
 
-socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOnline,hostplayerlist,gameStatus,options,hasPlaylist) {
+socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOnline,hostplayerlist,gameStatus,options,hasPlaylist,serverName) {
   hostid=hostidresponse;
   name=playername;
   document.getElementById('spotify-button').disabled=(hasPlaylist>0);
-  updateSettings(options);
+  //updateSettings(options);
   if(gameStatus=='setup'){
-    document.getElementById("setup").setAttribute("style", "display: block;");
+    document.getElementById("setup").setAttribute("style", "display: none;");
   }
   connectToHost(hostid);
 });
@@ -39,7 +32,7 @@ function connectToHost(hostid)
 {
   var hostsocket = io('/'+hostid);
   //When a round starts
-  hostsocket.on('roundstart', function(name,url,type,round,coverArt) {
+  hostsocket.on('roundstart', function(name, album, artist, coverArt, url, type, round, hostplayerlist, length){
     document.getElementById("setup").setAttribute("style", "display: none;");
     console.log('Ready');
     inputActive=1;
@@ -53,7 +46,7 @@ function connectToHost(hostid)
   });
 
   hostsocket.on('updateSettings', function(options){
-    updateSettings(options);
+    //updateSettings(options);
   });
 }
 

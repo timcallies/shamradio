@@ -17,8 +17,8 @@
       <div id="gameselect">
         <div id=button-group class="flex-container">
           <button class="bigger-button" onclick="playOnline()" style="flex-grow:1;">Play Online</button>
-        <button class="big-button" onclick="hostLocal()" disabled>Host Local</button>
-        <button class="big-button" onclick="playLocal()" disabled>Play Local</button>
+        <button class="big-button" onclick="hostLocal()">Host Local</button>
+        <button class="big-button" onclick="playLocal()">Play Local</button>
         </div>
       </div>
       <div id=server-browser>
@@ -35,7 +35,7 @@
       </div>
 
       <div id="host-input" style="display:none;">
-        <button id="hostname" placeholder="Host ID" autocomplete="off" autocapitalize="off"/>
+        <input id="hostname" placeholder="Host ID" autocomplete="off" autocapitalize="off"/>
         <button onclick="connectLocal()" >Connect</button>
       </div>
 

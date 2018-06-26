@@ -2,7 +2,7 @@ function inputScreen() {
   document.getElementById("input-screen-container").innerHTML=
   '<div id="guessfield" class="guess-bg">'+
     '<form id="guessform" action="" style = "display:inline-flex;">'+
-      '<input id="guess" class="guess-input" autocomplete="off"/>'+
+      '<input id="guess-textbox" class="guess-input" autocomplete="off"/>'+
       '<button class="guess-button">Send</button>'+
     '</form>'+
     '<ul id="possiblechoices" class= "guess-list"></ul>'+
