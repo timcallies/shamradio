@@ -159,7 +159,7 @@ MongoClient.connect(url, function(err, db) {
         '?response_type=code' +
         '&client_id=' + '6d404988dbe84c42b2ffb44735ac6ab0' +
         (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
-        '&redirect_uri=' + encodeURIComponent(baseUrl+"/spotify"));
+        '&redirect_uri=' + encodeURI(baseUrl+"/spotify"));
     else{
       spotify.addUser(req.cookies.userSession,query.code);
       res.sendFile(__dirname +'/html/close.html')
