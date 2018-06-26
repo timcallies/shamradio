@@ -1,0 +1,29 @@
+form#chat-form
+{
+  bottom: 0;
+  width: 100%;
+  display: inline-flex;
+}
+#chat-input {
+  flex-grow: 1;
+  text-align: left;
+  padding: 10px;
+  width: 50%;
+}
+#chat-button {
+
+}
+
+#chat-messages {
+  list-style-type: none;
+  white-space: pre-line;
+  margin: 0;
+  padding: 0;
+  height:0px;
+  transition: all 0.5s;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+#chat-messages li {font-size: larger; padding: 5px 10px;}
+#chat-messages li:nth-child(odd) { background: #eee; }

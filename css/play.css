@@ -1,0 +1,55 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
+
+html,
+body {
+  font-family: Montserrat, sans-serif;
+  padding: 0;
+  margin: 0;
+  background: #DEDEDE;
+}
+
+#mainscreen{
+  width:100%;
+  height:100vh;
+  margin: auto;
+  max-width: 8in;
+  background: white;
+  box-shadow: 0px 0px 10px #888888;
+  overflow-y: hidden;
+}
+
+.userinfoclass{
+  padding: 0px;
+  display:none;
+  font-size:x-large;
+  text-align: center;
+  max-width: 8in;
+  margin: auto;
+}
+
+
+#guessfield{
+  display:none;
+  text-align: center;
+  font-size:larger;
+  padding-top: 20px;
+  height: 100%;
+}
+
+ul{margin:0px;padding:0px;}
+
+#possiblechoices {
+  font-size: larger;
+  height: calc(100vh - 70px);
+  overflow-y: scroll;
+}
+
+#guess, #username, #servername {
+  width: 90%;
+  max-width: 600px;
+  font-size: x-large;
+  padding-left: 20px;
+}
+
+li{font-size: xx-large; list-style-type: none; padding: 20px; text-align: center; margin: 0px;}
+li:hover{background-color: blue; color: white; cursor: pointer;}

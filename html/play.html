@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url("/css/style.css");
+    @import url("/css/play.css");
+    @import url("/css/inputScreen.css");
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+  <body>
+    <div id="mainscreen">
+
+      <div id="setup" class="userinfoclass">
+        <div id="user">
+          <div style="display:inline-table;">
+            <input id="username" placeholder="Username" autocomplete="off">
+            <button onclick='changeName()'>Set Name</button>
+          </div>
+          <button id="spotify-button" href="#" onClick="window.open('/login','Login','resizable,height=400,width=370'); document.getElementById('spotify-button').disabled=true; return false;">Connect to Spotify</button>
+        </div>
+      </div>
+
+      <div id="input-screen-container" ></div>
+
+    </div>
+    <script src="/scripts/inputScreen.js"></script>
+    <script src="/scripts/play.js"></script>
+  </body>
+</html>

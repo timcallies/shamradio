@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <body>
+    <div id="name"></div>
+    <form id="addmusic" action="">
+      URL <input id="url" autocomplete="off" />
+      Type
+      <select id="type">
+        <option value="" disabled="disabled" selected="selected">Select a type</option>
+        <option value="video/webm">WEBM</option>
+        <option value="youtube">YouTube</option>
+        <option value="music">MP3</option>
+    </select>
+      <button>Send</button>
+    </form>
+  </body>
+  <script>
+    var socket = io();
+    var thisSong = undefined;
+
+    window.onload = function(){
+      socket.emit('animesongrequest');
+    }
+
+
+    socket.on('animesongresponse', function(doc) {
+      console.log(doc);
+      $('#name').text(doc.series+" #"+doc.opNumber+"|"+doc.name);
+      thisSong=doc;
+    });
+
+    $(function () {
+      $('#addmusic').submit(function(){
+        thisSong.url = $('#url').val();
+        thisSong.type = $('#type').val()
+        socket.emit('animesongupdate', thisSong);
+        document.getElementById("addmusic").reset();
+        socket.emit('animesongrequest');
+        return false;
+      });
+    });
+  </script>
+</html>

@@ -1,0 +1,55 @@
+<html>
+  <style>
+      @import url("/css/style.css");
+      @import url("/css/home.css");
+  </style>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <body>
+    <div id="header">
+      <a id="sitename" href="/">Hatsley's Music Quiz</a>
+
+    </div>
+    <div id="mainscreen">
+      <h1>Login</h1>
+      <div id="login">
+        <input id="username" placeholder="Username" autocomplete="on" autocapitalize="off"/><br>
+        <input id="password" placeholder="Password" type="password" autocomplete="on" autocapitalize="off"/><br>
+        <button onclick="login()" class="button-cool">Login</button>
+      </div>
+      <h1>Register</h1>
+      <div id="register" action="">
+        <input id="r-username" placeholder="Username" autocomplete="on" autocapitalize="off"/><br>
+        <input id="r-password" type="password"  placeholder="Password" autocomplete="on" autocapitalize="off"/><br>
+        <input id="r-password-2" type="password"  placeholder="Repeat Password" autocomplete="on" autocapitalize="off"/><br>
+        <button onclick="register()" class="button-cool">Register</button>
+      </div>
+    </div>
+    <div id="mainscreen-bg"></div>
+    <script>
+      var socket = io();
+
+      function login() {
+        socket.emit('login',$('#username').val(),$('#password').val());
+      }
+
+      function register() {
+        if($('#r-password').val()==$('#r-password-2').val())
+        {
+          socket.emit('register',$('#r-username').val(),$('#r-password').val());
+        }
+      }
+
+      socket.on('loginresponse', function(userSession){
+        document.cookie = "userSession="+userSession;
+        window.location.href = "/account";
+      });
+
+      socket.on('errormessage', function(msg){
+        alert(msg);
+      });
+
+    </script>
+</html>

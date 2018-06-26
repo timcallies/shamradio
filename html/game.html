@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+
+  <style>
+    @import url("/css/style.css");
+    @import url("/css/game.css");
+    @import url("/css/settings.css");
+    @import url("/css/inputScreen.css");
+    @import url("/css/chat.css");
+  </style>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <body>
+    <div id="round-container">
+      <div id="round-text">Round 1</div>
+    </div>
+    <div class="container">
+      <div class="content">
+        <div id="chat-container"></div>
+
+        <div id="setup">
+          <div id = "hostsetup">
+            <div id="hostinfo">????</div>
+            <div id="hostQR"></div>
+            <div id="beginsettings" style="display: inline-flex;">
+              <button id="begingame" onclick="beginGame()" disabled>Begin Game</button>
+              <button id="settings"  onclick='showWindow("settings-window")' width="55px">
+                <img src="/img/settings.png" height="20px"/>
+              </button>
+            </div>
+          </div>
+
+          <div id="playersetup">
+            <div id="user">
+              <div style="display:inline-table;">
+                <input id="username" placeholder="Username" autocomplete="off">
+                <button onclick='changeName()'>Set Name</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id = "playscreen">
+          <div id = "cover">
+            <div id='coverTimer'></div>
+          </div>
+          <div id="video-player-container" style="height: 100%;"></div>
+          <div id = "endScreen">
+            <div id = "endScreenText"></div>
+            <button id="playagain" onclick="playAgain()">Play Again</button>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar">
+        <header>
+          <h1>Players</h1>
+        </header>
+        <ul id="users"></ul>
+        <div id="input-screen-container" ></div>
+      </div>
+    </div>
+
+
+    <div id="settings-window" class="window">
+      <div class="window-header">
+        <div>
+        Settings
+        </div>
+        <div class="window-x">X</div>
+      </div>
+      <div id = "settings-container" class="window-body">
+      </div>
+    </div>
+
+    <div id="name-window" class="window">
+      <div class="window-header">
+        <div>
+        Change Name
+        </div>
+        <div class="window-x">X</div>
+      </div>
+      <form>
+
+      </form>
+      </div>
+    </div>
+
+    <script src="/scripts/chat.js"></script>
+    <script src="/scripts/settings.js"></script>
+    <script src="/scripts/videoPlayer.js"></script>
+    <script src="/scripts/inputScreen.js"></script>
+    <script src="/scripts/game.js"></script>
+  </body>
+</html>

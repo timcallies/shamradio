@@ -1,0 +1,55 @@
+.guess-bg{
+  width:100%;
+  height:100vh;
+  background: white;
+  overflow-y: hidden;
+}
+
+
+#guessfield{
+  display:none;
+  font-size:larger;
+  height: 100%;
+}
+
+#guessform{
+  display:none;
+  width:100%;
+  padding: 0px;
+}
+
+#guess-textbox {
+  text-align: left;
+  padding: 10px;
+  width: 50%;
+  flex-grow: 1;
+}
+
+.guess-list{
+  margin:0px;
+  padding:0px;
+  font-size: larger;
+  height: fit-content;
+  overflow-y: scroll;
+}
+
+.guess-button {
+  font-family: Montserrat, sans-serif;
+  border: none;
+  background-color: #4e4ee0;
+  color: #fff;
+  padding: 15px 32px;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  font-size: large;
+  height: 55px;
+}
+.guess-button:hover {
+  background-color: #c2c2ff;
+}
+
+.choice{font-size: x-large; list-style-type: none; padding: 20px; text-align: center; margin: 0px; color: black;}
+
+.choice:hover{background-color: blue; color: white; cursor: pointer;}

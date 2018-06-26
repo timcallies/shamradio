@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url("/css/style.css");
+  @import url("/css/home.css");
+</style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <body>
+    <div id="header">
+      <a id="sitename" href="/">Hatsley's Music Quiz</a>
+      <button class='login-button' id="login-button" onclick="window.location.href = '/login';">Login/Register</button>
+      <button class='login-button' id="account-button" onclick="window.location.href = '/account';">My Account</button>
+    </div>
+    <div id="mainscreen">
+      <div id="gameselect">
+        <div id=button-group class="flex-container">
+          <button class="bigger-button" onclick="playOnline()" style="flex-grow:1;">Play Online</button>
+        <button class="big-button" onclick="hostLocal()" disabled>Host Local</button>
+        <button class="big-button" onclick="playLocal()" disabled>Play Local</button>
+        </div>
+      </div>
+      <div id=server-browser>
+        <div id="create-server" style="background:gray;display:flex;flex-wrap: wrap;">
+          <input id="servername" placeholder="Server Name" autocomplete="off" autocapitalize="off" style="flex-grow: 2;">
+          <div style="display:flex; flex-grow:1;">
+            <input id="password" placeholder="Password (Optional)" autocomplete="off" autocapitalize="off" style="flex-grow: 1; width: 50%">
+            <button onclick="createServer()">Create</button>
+          </div>
+        </div>
+        <ul id="server-list">
+
+        </ul>
+      </div>
+
+      <div id="host-input" style="display:none;">
+        <button id="hostname" placeholder="Host ID" autocomplete="off" autocapitalize="off"/>
+        <button onclick="connectLocal()" >Connect</button>
+      </div>
+
+    </div>
+    <div id="mainscreen-bg"></div>
+    <script src="/scripts/home.js"></script>
+  </body>
+</html>
