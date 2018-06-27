@@ -50,13 +50,11 @@ Dark Blue: #100b24
   background-color: #111;
 }
 .playerRank {
-  text-align: left;
-  z-index: -1;
   color: #fff6;
   font-size: 70px;
-  margin-top: -70px;
+  margin-top: -74px;
   margin-left: 10px;
-  margin-bottom: -10px;
+  position: absolute;
 }
 .sidebar {
   color: white;
@@ -80,7 +78,9 @@ Dark Blue: #100b24
 }
 .user-container {
   overflow: hidden;
+  background: darkgray;
   text-overflow: ellipsis;
+  height: 65px;
 }
 
 div#hostsetup {
@@ -140,7 +140,8 @@ div#endScreen{
   display: none;
   color: white;
   text-align: center;
-  font-size: 60px;
+  font-size: xx-large;
+  margin: 10px;
 }
 
 @keyframes shrink {
@@ -169,14 +170,6 @@ div#hostQR {
   background-color:#100b24;
 }
 
-div#chat-container {
-  width: 400px;
-  background: white;
-  position: fixed;
-  bottom: 0px;
-  z-index: 2;
-}
-
 div#videoinfo {
   position: relative;
   width: 100%;
@@ -190,7 +183,8 @@ div#videoinfo {
 ul#users {
     margin: 20px;
     margin-top: 0px;
-    background: darkgray;
+    height: 520px;
+    background: #8c8c8c;
     border-radius: 5px;
     list-style-type: none;
     text-align: center;
@@ -209,7 +203,7 @@ ul#users {
   font-weight: bold;
 }
 header{text-align: center; padding: 10px;}
-h1{font-size: xx-large; font-weight: bolder;}
+h1{font-size: 25px; margin: 5px;}
 h2{font-size: larger; padding-bottom: 20px}
 h3{font-size: xx-large; margin: 5px;}
 h4{font-size: x-large; margin: 5px;}
@@ -229,7 +223,7 @@ div#round-container {
 
 div#round-text {
   padding:0.1em;
-  font-size:5em;
+  font-size:3em;
   text-align:center;
   font-style: italic;
   animation: round-text-move 3s;
@@ -254,16 +248,29 @@ div#round-text {
   margin-right: auto;
   left: 0;
   right: 0;
-  visibility: hidden;
-  opacity: 0;
-  top: 70%;
+  top: 50%;
   transform: translateY(-50%);
   transition: opacity 0.2s, visibility .2s, top 0.2s;
   background-color:#FAFAFA;
   outline: 2px solid #E0E0E0;
-
-
 }
+
+#postround{
+  background: #20203b;
+  height: 100%;
+  width:100%;
+  opacity: 50%;
+}
+
+.window-mobile{
+  position:fixed;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  background-color:#FAFAFA;
+  outline: 2px solid #E0E0E0;
+}
+
 .window-header{
   font-weight:bold;
   font-size:x-large;
@@ -278,6 +285,8 @@ div#round-text {
   height: 500px;
   overflow-y: scroll;
 }
+
+
 .window-x{
   color:#9E9E9E;
   width:1.2em;
@@ -295,4 +304,36 @@ p.optionheader{
   font-size: large;
   font-style: italic;
   margin-top: 30px;
+}
+
+.user-container-mobile {
+  width: 90vw;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 5%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.input-container-mobile {
+  display: block;
+  position: fixed;
+  z-index: 5;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+}
+
+.chat-container {
+  width: 400px;
+  background: white;
+  position: fixed;
+  bottom: 0px;
+  z-index: 2;
+}
+
+.chat-container-mobile {
+  width: 100%; !important
+  max-height: 50%;
 }

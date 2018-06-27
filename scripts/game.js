@@ -1,4 +1,5 @@
 document.getElementById('begingame').disabled = true;
+
 const gameTime=20;
 const maxRounds=10;
 
@@ -169,6 +170,7 @@ function connectToHost(hostid) {
   });
 
   hostsocket.on('finishedround', function(playerPlaylists){
+    $(".chat-container-mobile").css('width',"100%");
     hideInputScreen();
     //document.getElementById('cover').setAttribute("style", "opacity: 0.0;");
     fadeOut(document.getElementById('cover'));
@@ -189,6 +191,14 @@ function connectToHost(hostid) {
         prevRank++;
       playerlist[i].rankTag.innerHTML=prevRank;
     }
+
+    //Show the scores after the round ends
+    setTimeout(function(){
+      $(".user-container-mobile").css('opacity',1);
+      setTimeout(function(){
+        $(".user-container-mobile").css('opacity',0);
+      },3000);
+    },7000);
 
     playerPlaylists.forEach(function(player){
       console.log(player);
@@ -213,6 +223,7 @@ function connectToHost(hostid) {
 
   //When a new round begins
   hostsocket.on('roundstart', function(name, album, artist, coverArt, url, type, round, hostplayerlist, length){
+    $(".chat-container-mobile").css('width',"0px");
     document.getElementById('setup').setAttribute("style", "display: none;");
     document.getElementById('coverTimer').setAttribute("style", "animation-duration: "+length+"s;");
     document.getElementById("playscreen").setAttribute("style", "display: block;");
@@ -251,7 +262,7 @@ function connectToHost(hostid) {
     document.getElementById('setup').setAttribute("style", "display: block;");
   });
 
-  hostsocket.on("disconnect", function() {
+  hostsocket.on("removeserver", function() {
     //alert("Error: You were disconnected from the game. Please go shout at @sirhatsley to fix his game");
     window.location.href = "/";
   });
@@ -305,25 +316,37 @@ window.fadeOut = function(obj) {
   $(obj).fadeOut(1000);
 }
 
-var height = "innerHeight" in window
-             ? window.innerHeight
-             : document.documentElement.offsetHeight;
-if (height<600)
-{
-  document.body.style.transform = 'scale(' + height/600 + ')';
-  document.body.style.height = '600px';
-  document.body.style.width = 100/(height/600)+'%';
-}
-else {
-  document.body.style.transform = 'scale(1)';
-  document.body.style.height = '100%';
-  document.body.style.width = '100%';
-}
-
-window.addEventListener('resize', function(event){
+function rescalePage() {
   var height = "innerHeight" in window
                ? window.innerHeight
                : document.documentElement.offsetHeight;
+
+  var width = "innerWidth" in window
+              ? window.innerWidth
+              : document.documentElement.offsetWidth;
+
+  //Mobile page configuration
+  if((height > width) && !mobilePage) {
+    mobilePage=true;
+    $("#sidebar").css("width", "0px");
+    $("#chat-container").addClass('chat-container-mobile');
+    $('#settings-window').addClass('window-mobile').removeClass('window');
+    $('#user-container').addClass('user-container-mobile');
+    $('#input-screen-container').addClass('input-container-mobile');
+
+  }
+
+  //Desktop page configuration
+  if((height < width) && mobilePage) {
+    if(isDeviceMobile && portraitMode) {return;}
+    mobilePage = false;
+    $("#sidebar").css("width", "350px");
+    $("#chat-container").removeClass('chat-container-mobile');
+    $('#settings-window').addClass('window').removeClass('window-mobile');
+    $('#user-container').removeClass('user-container-mobile');
+    $('#input-screen-container').removeClass('input-container-mobile');
+  }
+
   if (height<600)
   {
     document.body.style.transform = 'scale(' + height/600 + ')';
@@ -335,32 +358,27 @@ window.addEventListener('resize', function(event){
     document.body.style.height = '100%';
     document.body.style.width = '100%';
   }
+}
+
+var mobilePage = false;
+rescalePage();
+
+
+
+window.addEventListener('resize', function(event){
+  rescalePage();
 });
 
 /*********************************************
 *               OPTIONS WINDOW               *
 *********************************************/
-var currWindow = null;
 settingsContainer('settings-container');
 
-function showWindow(windowName){
-  if(currWindow != null) {
-    currWindow.setAttribute("style","top:70%; visibility:hidden; opacity:0");
-  }
-  currWindow = document.getElementById(windowName);
-  currWindow.setAttribute("style","top:50%; transform: translateY(-50%); visibility:visible; opacity:1")
-  var xButton = currWindow.getElementsByClassName("window-x")[0];
-  xButton.onclick = function(){
-    currWindow.setAttribute("style","top:70%; visibility:hidden; opacity:0");
-    currWindow=null;
-  }
-}
+$('#settings-window').css('display','none');
 
 function saveSettings(options) {
   socket.emit("savesettings",getCookie('sessionId'),hostid,options);
-
-  currWindow.setAttribute("style","top:70%; visibility:hidden; opacity:0");
-  currWindow=null;
+  $('#settings-window').fadeOut(300);
 }
 
 function reset_animation(name) {
@@ -376,6 +394,7 @@ function reset_animation(name) {
 function submitGuess(msg) {
   //document.getElementById('guess').value=msg;
   socket.emit('guess', msg, getCookie('sessionId'), hostid);
+  $(".chat-container-mobile").css('width',"100%");
   hideInputScreen();
 }
 
@@ -392,3 +411,21 @@ String.prototype.hashCode = function(){
     }
     return hash;
 }
+
+/*********************************************
+*               MOBILE BROWSER               *
+*********************************************/
+var isDeviceMobile = false;
+var portraitMode=true;
+
+if ('ontouchstart' in window) {
+  isDeviceMobile = true;
+}
+
+window.addEventListener("orientationchange", function() {
+    if(screen.orientation.angle==0) {
+      portraitMode=true;
+    } else {
+      portraitMode=false;
+    }
+});

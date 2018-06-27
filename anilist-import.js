@@ -355,7 +355,7 @@ function addShow(data) {
               year: parseInt(data.startDate.year),
               type: "Unknown",
               alternateNames: alltitles,
-              averageScore: (data.averageScore/10.0),
+              averageScore: data.averageScore,
               wins: 1.0,
               losses: 1.0,
               ratio: 1.0,
@@ -378,7 +378,7 @@ function addShow(data) {
                     opStack.push(song);
                   }
                   else {
-                    animeCollection.updateMany({songid: song.songid},{$set: {averageScore: song.averageScore}});
+                    animeCollection.updateMany({idAlist: song.idAlist},{$set: {averageScore: song.averageScore}});
                   }
                 });
               }

@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     @import url("/css/style.css");
     @import url("/css/game.css");
@@ -20,7 +20,7 @@
     </div>
     <div class="container">
       <div class="content">
-        <div id="chat-container"></div>
+        <div id="chat-container" class="chat-container"></div>
 
         <div id="setup">
           <div id = "hostsetup">
@@ -28,7 +28,7 @@
             <div id="hostQR"></div>
             <div id="beginsettings" style="display: inline-flex;">
               <button id="begingame" onclick="beginGame()" disabled>Begin Game</button>
-              <button id="settings"  onclick='showWindow("settings-window")' width="55px">
+              <button id="settings"  onclick="$('#settings-window').fadeIn(300);" width="55px">
                 <img src="/img/settings.png" height="20px"/>
               </button>
             </div>
@@ -55,11 +55,13 @@
           </div>
         </div>
       </div>
-      <div class="sidebar">
+      <div id="sidebar" class="sidebar">
         <header>
           <h1>Players</h1>
         </header>
-        <ul id="users"></ul>
+        <div id = "user-container">
+          <ul id="users"></ul>
+        </div>
         <div id="input-screen-container" ></div>
       </div>
     </div>
@@ -70,23 +72,11 @@
         <div>
         Settings
         </div>
-        <div class="window-x">X</div>
+        <div id = 'settings-x' onclick="$('#settings-window').fadeOut(300);" class="window-x">X</div>
       </div>
       <div id = "settings-container" class="window-body">
       </div>
     </div>
-
-    <div id="name-window" class="window">
-      <div class="window-header">
-        <div>
-        Change Name
-        </div>
-        <div class="window-x">X</div>
-      </div>
-      <form>
-
-      </form>
-      </div>
     </div>
 
     <script src="/scripts/chat.js"></script>

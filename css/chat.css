@@ -20,6 +20,7 @@ form#chat-form
   margin: 0;
   padding: 0;
   height:0px;
+  max-height: 50vw;
   transition: all 0.5s;
   display: flex;
   flex-direction: column;

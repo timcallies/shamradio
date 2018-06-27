@@ -5,7 +5,7 @@ function chatContainer(container,socket,hostsocket) {
   document.getElementById(container).innerHTML=
   '<ul id="chat-messages"></ul>'+
   '<form id="chat-form" action="">'+
-    '<input id="chat-input" autocomplete="off" placeholder="Chat"/><button>Send</button>'+
+    '<input id="chat-input" autocomplete="off" placeholder="Chat"/><button id="chat-button">Send</button>'+
   '</form>';
 
 
@@ -34,6 +34,15 @@ function chatContainer(container,socket,hostsocket) {
     $('#chat-input').val('');
     return false;
   });
+
+  $('#chat-button').click(function() {
+    $('#chat-messages').css("height", "0px");
+  });
+
+  $('#chat-input').click(function() {
+    $('#chat-messages').css("height", "400px");
+  });
+
 
   hostsocket.on('chat message', function(name,msg){
     var thisText = $('<li>').text(name+": "+msg);

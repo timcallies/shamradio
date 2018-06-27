@@ -879,27 +879,32 @@ MongoClient.connect(url, function(err, db) {
         console.log(hostlist[hostid].playlist.indexOf(doc.songid));
         hostoptions=hostlist[hostid].options;
         hostlist[hostid].currentSong = doc.songid;
+        hostlist[hostid].possibleTitles = [];
 
         if(hostoptions.matchBy=="title"){
-          hostlist[hostid].possibleTitles=[doc.name];
+          hostlist[hostid].possibleTitles.push(doc.name);
           if(doc.alternateTitles != undefined) {
             if(doc.alternateTitles.length >0 ) {
-              hostlist[hostid].possibleTitles=[doc.alternateTitles].push(doc.name);
+              doc.alternateTitles.forEach(function(title){
+                hostlist[hostid].possibleTitles.push(title);
+              });
             }
           }
         }
 
         if(hostoptions.matchBy=="album"){
-          hostlist[hostid].possibleTitles=[doc.album];
+          hostlist[hostid].possibleTitles.push(doc.album);
           if(doc.alternateAlbums != undefined) {
             if(doc.alternateAlbums.length >0 ) {
-              hostlist[hostid].possibleTitles=[doc.alternateAlbums].push(doc.album);
+              doc.alternateAlbums.forEach(function(title){
+                hostlist[hostid].possibleTitles.push(title);
+              });
             }
           }
         }
 
         if(hostoptions.matchBy=="artist")
-          hostlist[hostid].possibleTitles=[doc.artist].push(doc.name);
+          hostlist[hostid].possibleTitles.push(doc.artist);
 
         if(hostoptions.matchBy=="series"){
           hostlist[hostid].possibleTitles=doc.alternateNames;
@@ -907,10 +912,12 @@ MongoClient.connect(url, function(err, db) {
         }
 
         if(hostoptions.matchBy=="player"){
-          hostlist[hostid].possibleTitles=[doc.songid].push(doc.name);
+          hostlist[hostid].possibleTitles.push(doc.songid);
           if(doc.alternateIds != undefined) {
             if(doc.alternateIds.length >0 ) {
-              hostlist[hostid].possibleTitles=[doc.alternateIds].push(doc.songid);
+              doc.alternateIds.forEach(function(title){
+                hostlist[hostid].possibleTitles.push(title);
+              });
             }
           }
         }
@@ -1022,6 +1029,7 @@ MongoClient.connect(url, function(err, db) {
     if (!(hostid in hostlist)) {
       return;
     }
+    console.log('rip server');
 
     var newServerList = [];
     //Updates the publicserverlist
@@ -1031,7 +1039,7 @@ MongoClient.connect(url, function(err, db) {
         newServerList.push(publicserverlist[i]);
     }
     publicserverlist = newServerList;
-    io.of('/'+hostid).emit('disconnect');
+    io.of('/'+hostid).emit('removeserver');
     delete hostlist[hostid];
     io.of('/servers').emit('updateserverlist', shortServerList());
   }
