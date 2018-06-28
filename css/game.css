@@ -83,6 +83,11 @@ Dark Blue: #100b24
   height: 65px;
 }
 
+#user-container {
+  margin: 20px;
+  margin-top: 0px;
+}
+
 div#hostsetup {
   display:none;
   top: 50%;
@@ -118,13 +123,14 @@ div#playscreen {display:none; height: 100%;}
 
 div#cover{
   display:none;
-  width:100%;  height:100%;
+  width:100%;  height: inherit;
   background-color: black;
   background-image:url(/img/timers.png);
   margin-bottom: -100vh;
-  position: relative;
+  position: absolute;
   z-index: 1;
   top: 0px;
+  left: 0px;
 }
 div#coverTimer{
   bottom:0px;
@@ -181,7 +187,7 @@ div#videoinfo {
 }
 
 ul#users {
-    margin: 20px;
+
     margin-top: 0px;
     height: 520px;
     background: #8c8c8c;
@@ -205,8 +211,8 @@ ul#users {
 header{text-align: center; padding: 10px;}
 h1{font-size: 25px; margin: 5px;}
 h2{font-size: larger; padding-bottom: 20px}
-h3{font-size: xx-large; margin: 5px;}
-h4{font-size: x-large; margin: 5px;}
+h3{font-size: x-large; margin: 5px;}
+h4{font-size: large; margin: 5px;}
 
 div#round-container {
   z-index: 2;
@@ -307,13 +313,12 @@ p.optionheader{
 }
 
 .user-container-mobile {
-  width: 90vw;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 5%;
-  opacity: 0;
-  pointer-events: none;
+  margin: 0px;
+  position: fixed;
+  display: none;
+  top: 30px;
+  left: 10px;
+  transform-origin: left top;
 }
 
 .input-container-mobile {
@@ -323,6 +328,7 @@ p.optionheader{
   left: 0px;
   bottom: 0px;
   width: 100%;
+  transition: opacity 0.5s;
 }
 
 .chat-container {
@@ -336,4 +342,12 @@ p.optionheader{
 .chat-container-mobile {
   width: 100%; !important
   max-height: 50%;
+  transform: scaleX();
+}
+
+#players-button {
+  display: none;
+  position: absolute;
+  top: 0px;
+  right: 0px;
 }

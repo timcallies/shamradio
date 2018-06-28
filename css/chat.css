@@ -3,6 +3,7 @@ form#chat-form
   bottom: 0;
   width: 100%;
   display: inline-flex;
+  z-index: 0;
 }
 #chat-input {
   flex-grow: 1;
@@ -15,6 +16,8 @@ form#chat-form
 }
 
 #chat-messages {
+  display: none;
+  z-index: 0;
   list-style-type: none;
   white-space: pre-line;
   margin: 0;
@@ -22,9 +25,19 @@ form#chat-form
   height:0px;
   max-height: 50vw;
   transition: all 0.5s;
-  display: flex;
   flex-direction: column;
   overflow-y: scroll;
 }
-#chat-messages li {font-size: larger; padding: 5px 10px;}
+#chat-messages li {font-size: larger; padding: 5px 10px; background: #f9f9f9; }
 #chat-messages li:nth-child(odd) { background: #eee; }
+
+.exit-chat {
+  display: none;
+  position: fixed;
+  background-color: #000c;
+  height: 0px;
+  width: 100vw;
+  top: 0px;
+  z-index: -1;
+  color: #c9c9c9;
+}

@@ -194,11 +194,11 @@ function connectToHost(hostid) {
 
     //Show the scores after the round ends
     setTimeout(function(){
-      $(".user-container-mobile").css('opacity',1);
+      $(".user-container-mobile").fadeIn(500);
       setTimeout(function(){
-        $(".user-container-mobile").css('opacity',0);
-      },3000);
-    },7000);
+        $(".user-container-mobile").fadeOut(500);
+      },7000);
+    },3000);
 
     playerPlaylists.forEach(function(player){
       console.log(player);
@@ -316,6 +316,14 @@ window.fadeOut = function(obj) {
   $(obj).fadeOut(1000);
 }
 
+$("#user-container").click(function() {
+  $(".user-container-mobile").fadeOut(500);
+});
+
+$("#players-button").click(function() {
+  $(".user-container-mobile").fadeIn(500);
+});
+
 function rescalePage() {
   var height = "innerHeight" in window
                ? window.innerHeight
@@ -326,37 +334,59 @@ function rescalePage() {
               : document.documentElement.offsetWidth;
 
   //Mobile page configuration
-  if((height > width) && !mobilePage) {
-    mobilePage=true;
-    $("#sidebar").css("width", "0px");
-    $("#chat-container").addClass('chat-container-mobile');
-    $('#settings-window').addClass('window-mobile').removeClass('window');
-    $('#user-container').addClass('user-container-mobile');
-    $('#input-screen-container').addClass('input-container-mobile');
-
+  if((height > width)) {
+    if(!mobilePage)
+    {
+      mobilePage=true;
+      $("#sidebar").css("width", "0px");
+      $("#chat-container").addClass('chat-container-mobile');
+      $('#settings-window').addClass('window-mobile').removeClass('window');
+      $('#user-container').addClass('user-container-mobile');
+      $('#user-container').css('display',("none"));
+      $('#players-button').css('display',("block"));
+      $('#input-screen-container').addClass('input-container-mobile');
+      document.body.style.transform = 'scale(1)';
+      document.body.style.height = '100%';
+      document.body.style.width = '100%';
+    }
+    $('#exit-chat').css('height',"100vh");
+    $('#user-container').css('transform',("scale("+(height-56)/600.0+")"));
+    $('#user-container').css('width',((width-60)/((height-56)/600.0)+"px"));
+    $(".content").css("height", "calc(100vh - 56px)");
   }
 
   //Desktop page configuration
-  if((height < width) && mobilePage) {
-    if(isDeviceMobile && portraitMode) {return;}
-    mobilePage = false;
-    $("#sidebar").css("width", "350px");
-    $("#chat-container").removeClass('chat-container-mobile');
-    $('#settings-window').addClass('window').removeClass('window-mobile');
-    $('#user-container').removeClass('user-container-mobile');
-    $('#input-screen-container').removeClass('input-container-mobile');
-  }
+  if((height < width)) {
+    if(width>500)
+    {
+      if(mobilePage) {
+        mobilePage = false;
+        $("#sidebar").css("width", "350px");
+        $(".content").css("height", "100%");
+        $("#chat-container").removeClass('chat-container-mobile');
+        $('#settings-window').addClass('window').removeClass('window-mobile');
+        $('#user-container').removeClass('user-container-mobile');
+        $('#input-screen-container').removeClass('input-container-mobile');
+        $('#user-container').css('transform',("scale(1)"));
+        $('#user-container').css('width',("auto"));
+        $('#players-button').css('display',("none"));
+        $('#user-container').css('display',("block"));
+        $('#exit-chat').css('height',("0px"));
+      }
+      //if(isDeviceMobile && portraitMode) {return;}
 
-  if (height<600)
-  {
-    document.body.style.transform = 'scale(' + height/600 + ')';
-    document.body.style.height = '600px';
-    document.body.style.width = 100/(height/600)+'%';
-  }
-  else {
-    document.body.style.transform = 'scale(1)';
-    document.body.style.height = '100%';
-    document.body.style.width = '100%';
+      else if (height<600)
+      {
+        document.body.style.transform = 'scale(' + height/600 + ')';
+        document.body.style.height = '600px';
+        document.body.style.width = 100/(height/600)+'%';
+      }
+      else {
+        document.body.style.transform = 'scale(1)';
+        document.body.style.height = '100%';
+        document.body.style.width = '100%';
+      }
+    }
   }
 }
 
