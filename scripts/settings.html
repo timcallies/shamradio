@@ -18,45 +18,59 @@
     <option value="player">Player</option>
   </select>
 
-  <p> <label for="songs-text">Number of songs:</label>
-    <input type="text" id="songs-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
-  </p>
-  <div id="songs-range"></div>
+  <p id= "round-option" class="option-tab">Round Options</p>
+  <div id = "round-option-group" class="option-group">
+    <p> <label for="songs-text">Number of songs:</label>
+      <input type="text" id="songs-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
+    </p>
+    <div id="songs-range"></div>
 
-  <p> <label for="length-text">Time limit:</label>
-    <input type="text" id="length-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
-  </p>
-  <div id="length-range"></div>
+    <p> <label for="length-text">Time limit:</label>
+      <input type="text" id="length-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
+    </p>
+    <div id="length-range"></div>
+  </div>
 
-  <p class="optionheader">Allow import from:</p>
-  <label class="checkboxcontainer music-settings">Spotify<input type="checkbox" id="settings-import-spotify"><span class="checkboxmark"></span></label>
-  <label class="checkboxcontainer anime-settings">Anilist<input type="checkbox" id="settings-import-anilist"><span class="checkboxmark"></span></label>
+  <p id= "import-option" class="option-tab">Import Options</p>
+  <div id = "import-option-group" class="option-group">
+    <p class="optionheader">Allow import from:</p>
+    <label class="checkboxcontainer music-settings" >Spotify<input type="checkbox" checked="checked" id="settings-import-spotify"><span class="checkboxmark"></span></label>
+    <label class="checkboxcontainer anime-settings">Anilist<input type="checkbox" checked="checked" id="settings-import-anilist"><span class="checkboxmark"></span></label>
 
-  <div id="import-mode>"<p class="optionheader">Import mode:</p>
-  <div id="settings-import-mode" class="settings-horizontal">
-    <label id="full-import" class="radiobuttons">Full playlists<input value="full" type="radio" name="radio-import" checked="checked"><span class="checkmark"></span></label>
-    <label id="balanced-import" class="radiobuttons">Balanced<input value="balanced" type="radio" name="radio-import"><span class="checkmark"></span></label>
-    <label id="shared-import" class="radiobuttons">Only shared songs<input value="shared" type="radio" name="radio-import"><span class="checkmark"></span></label>
-  </div></div>
+    <div id="import-mode>"<p class="optionheader">Import mode:</p>
+    <div id="settings-import-mode" class="settings-horizontal">
+      <label id="balanced-import" class="radiobuttons">Balanced<input value="balanced" type="radio" name="radio-import" checked="checked"><span class="checkmark"></span></label>
+      <label id="full-import" class="radiobuttons">Full playlists<input value="full" type="radio" name="radio-import"><span class="checkmark"></span></label>
+      <label id="shared-import" class="radiobuttons">Shared songs<input value="shared" type="radio" name="radio-import"><span class="checkmark"></span></label>
+    </div></div>
+  </div>
 
-  <p> <label for="difficulty-text">Popularity range:</label>
-    <input type="text" id="difficulty-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
-  </p>
-  <div id="difficulty-range"></div>
+  <p id= "filter-option" class="option-tab">Filter Options</p>
+  <div id = "filter-option-group" class="option-group">
+    <p> <label for="difficulty-text">Popularity range:</label>
+      <input type="text" id="difficulty-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
+    </p>
+    <div id="difficulty-range"></div>
 
-  <p>  <label for="age-text">Age range:</label>
-    <input type="text" id="age-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
-  </p>
-  <div id="age-range"></div>
+    <p>  <label for="age-text">Age range:</label>
+      <input type="text" id="age-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
+    </p>
+    <div id="age-range"></div>
 
-  <p class="anime-settings">  <label for="score-text">User score:</label>
-    <input type="text" id="score-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
-  </p>
-  <div id="score-range" class="anime-settings"></div>
+    <p class="anime-settings">  <label for="score-text">Player score:</label>
+      <input type="text" id="score-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
+    </p>
+    <div id="score-range" class="anime-settings"></div>
 
-  <div class="music-settings">
-    <p class="optionheader">Match by:</p>
-    <div id="settings-select-tags" class="settings-flex">
+    <p class="anime-settings">  <label for="avg-score-text">Average score (Anilist):</label>
+      <input type="text" id="avg-score-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
+    </p>
+    <div id="avg-score-range" class="anime-settings"></div>
+
+    <div class="music-settings">
+      <p class="optionheader">Match by:</p>
+      <div id="settings-select-tags" class="settings-flex">
+      </div>
     </div>
   </div>
 </form>

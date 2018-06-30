@@ -141,7 +141,7 @@ function getMoreEntries(thisUsername, offset) {
             media {
               idMal
             }
-            score(format: POINT_10)
+            score(format: POINT_100)
           }
         }
       }`;

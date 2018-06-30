@@ -40,12 +40,15 @@ $(function () {
 
 
 
-function updateGuessChoices(tags) {
-  var listElement = document.getElementById('possiblechoices');
-  $("#possiblechoices").empty();
-  $("#possiblechoices").css("display","block");
-  for(var i=0; i<tags.length; i++) {
-    $('#possiblechoices').append($('<li class="choice" onclick="submitGuess(\''+tags[i].replace("'","\\'")+'\')">').text(tags[i]));
+function updateGuessChoices(tags,query) {
+  if(query==$('#guess-textbox').val())
+  {
+    var listElement = document.getElementById('possiblechoices');
+    $("#possiblechoices").empty();
+    $("#possiblechoices").css("display","block");
+    for(var i=0; i<tags.length; i++) {
+      $('#possiblechoices').append($('<li class="choice" onclick="submitGuess(\''+tags[i].replace("'","\\'")+'\')">').text(tags[i]));
+    }
   }
 }
 

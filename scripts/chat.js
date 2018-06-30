@@ -1,4 +1,4 @@
-var hovering;
+var hovering = false;
 var chatDisplayCounter = 0;
 var chatheight = 0;
 
@@ -31,7 +31,8 @@ function chatContainer(container,socket,hostsocket) {
 
   $(("#chat-form")).hover(function(){
     hovering = true;
-    $('#chat-messages').css("height", "auto");
+    $('#chat-messages').css("display","flex");
+    $('#chat-messages').css("height", "400px");
     $('#exit-chat').fadeIn(500);
   }, function(){
     hovering = false;
@@ -50,7 +51,7 @@ function chatContainer(container,socket,hostsocket) {
   });
 
   $('#chat-form').hover(function() {
-    $('#chat-messages').css("height", "auto");
+    $('#chat-messages').css("height", "400px");
     $('#exit-chat').fadeIn(500);
   });
 
@@ -72,6 +73,7 @@ function consoleMessage(msg){
   var thisText = $('<li>').text(msg);
   $('#chat-messages').append(thisText);
   if(!hovering) {
+    $('#chat-messages').css("display","flex");
     $('#chat-messages').css("height", thisText.outerHeight());
     chatDisplayCounter=2000;
   }

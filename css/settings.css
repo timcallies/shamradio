@@ -28,8 +28,7 @@
   flex-wrap: wrap;
   padding: 10px;
   justify-content: space-between;
-  flex-direction: column;
-  height: 190px;
+  flex-direction: row;
 }
 
 /* Create a custom radio button */
@@ -78,6 +77,7 @@
 .checkboxcontainer {
   position: relative;
   padding-left: 35px;
+  width: 100px;
   margin-bottom: 12px;
   cursor: pointer;
   -webkit-user-select: none;
@@ -138,6 +138,32 @@
   transform: rotate(45deg);
 }
 
+p.optionheader{
+  margin-bottom: 10px;
+  font-size: large;
+  font-style: italic;
+  margin-top: 30px;
+}
+
+.expand {
+  float: right;
+  margin-right: 10px;
+  transform: scaleY(-.7) scaleX(2);
+  color: gray;
+}
+
+p.option-tab{
+  margin-bottom: 10px;
+  font-size: large;
+  margin-top: 30px;
+  border-bottom: #b7b7b7 solid 3px;
+  cursor: pointer;
+}
+
+.option-group{
+  margin-left: 10px;
+  display: none;
+}
 
 .music-settings{
   display: block;
@@ -145,4 +171,32 @@
 
 .anime-settings{
   display: none;
+}
+
+.ui-slider-handle {
+  width: 20px !important;
+  height: 20px !important;
+  top: -5px !important;
+  border-radius: 50% !important;
+  border: 5px solid #c5c5c5 !important;
+  background: white !important;
+}
+
+.ui-slider-horizontal {
+  height: 20px !important;
+  background: white !important;
+  border: none !important;
+}
+
+.ui-slider-handle .ui-state-active {
+  border: 5px solid #20203b !important;
+}
+
+.ui-widget-header {
+  background-color: #20203b !important;
+}
+
+.ui-slider{
+  border: none !important;
+  width: 90% !important;
 }

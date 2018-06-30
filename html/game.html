@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+<head><title>HMQ - Online Game</title></head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     @import url("/css/style.css");
@@ -12,7 +13,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
+  <script src="/scripts/jquery.ui.touch-punch.min.js"></script>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <body>
     <div id="round-container">
@@ -29,7 +30,7 @@
             <div id="hostQR"></div>
             <div id="beginsettings" style="display: inline-flex;">
               <button id="begingame" onclick="beginGame()" disabled>Begin Game</button>
-              <button id="settings"  onclick="$('#settings-window').fadeIn(300);" width="55px">
+              <button id="settings" width="55px">
                 <img src="/img/settings.png" height="20px"/>
               </button>
             </div>
@@ -69,13 +70,15 @@
 
 
     <div id="settings-window" class="window">
-      <div class="window-header">
-        <div>
-        Settings
+      <div style="display:flex;  flex-flow: column; height: 100%;">
+        <div class="window-header">
+          <div>
+          Settings
+          </div>
+          <div id = 'settings-x' onclick="$('#settings-window').fadeOut(300);" class="window-x">X</div>
         </div>
-        <div id = 'settings-x' onclick="$('#settings-window').fadeOut(300);" class="window-x">X</div>
-      </div>
-      <div id = "settings-container" class="window-body">
+        <div id = "settings-container" class="window-body">
+        </div>
       </div>
     </div>
     </div>

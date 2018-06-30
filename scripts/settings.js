@@ -40,6 +40,18 @@ function settingsContainer(container) {
       updateImport();
     });
 
+    $(".option-tab").append($("<div class='expand'>").text('^'));
+    $(".option-tab").click(function() {
+      var x = document.getElementById($(this).attr('id')+'-group');
+      if (x.style.display == "block") {
+        $(this).find('.expand').css('transform','scaleY(-.7) scaleX(2)');
+        x.style.display = "none";
+      } else {
+        $(this).find('.expand').css('transform','scaleY(.7) scaleX(2)');
+        x.style.display = "block";
+      }
+    });
+
     $("#anime-mode").click(function() {
       $(".music-settings").css("display","none");
       $(".anime-settings").css("display","block");
@@ -72,8 +84,8 @@ function settingsContainer(container) {
 
   $( function() {
     $( "#songs-range" ).slider({
-      range: false,
-      min: 0,
+      range: 'min',
+      min: 1,
       max: 50,
       value: 10,
 
@@ -86,8 +98,8 @@ function settingsContainer(container) {
 
   $( function() {
     $( "#length-range" ).slider({
-      range: false,
-      min: 0,
+      range: 'min',
+      min: 5,
       max: 30,
       value: 20,
 
@@ -118,7 +130,7 @@ function settingsContainer(container) {
       range: true,
       min: 0,
       max: 100,
-      values: [ 0, 100],
+      values: [ 50, 100],
 
       slide: function( event, ui ) {
         $( "#difficulty-text" ).val((ui.values[ 0 ] + " - " + ui.values[ 1 ] ));
@@ -147,8 +159,8 @@ function settingsContainer(container) {
     $( "#score-range" ).slider({
       range: true,
       min: 1,
-      max: 10,
-      values: [ 1, 10 ],
+      max: 100,
+      values: [ 50, 100 ],
 
       slide: function( event, ui ) {
         $( "#score-text" ).val((ui.values[ 0 ] + " - " + ui.values[ 1 ] ));
@@ -157,8 +169,25 @@ function settingsContainer(container) {
     $( "#score-text" ).val(($( "#score-range" ).slider( "values", 0 ) +
       " - " + $( "#score-range" ).slider( "values", 1 ) ));
   } );
+
+  $( function() {
+    $( "#avg-score-range" ).slider({
+      range: true,
+      min: 1,
+      max: 100,
+      values: [ 50, 100 ],
+
+      slide: function( event, ui ) {
+        $( "#avg-score-text" ).val((ui.values[ 0 ] + " - " + ui.values[ 1 ] ));
+      }
+    });
+    $( "#avg-score-text" ).val(($( "#avg-score-range" ).slider( "values", 0 ) +
+      " - " + $( "#avg-score-range" ).slider( "values", 1 ) ));
+  } );
   });
 }
+
+
 
 function finalizeSettings() {
   var thisMatchBy;
@@ -180,14 +209,16 @@ function finalizeSettings() {
   var options = {
     mode:$('input[name=radio]:checked').val(),
     matchBy:thisMatchBy,
-    songs:$( "#songs-range" ).slider( "value"),
-    length:$( "#length-range" ).slider( "value"),
+    songs:$( "#songs-range" ).slider( "values", 1 ),
+    length:$( "#length-range" ).slider( "values", 1 ),
     importFromSpotify:document.getElementById('settings-import-spotify').checked,
     importFromAnilist:document.getElementById('settings-import-anilist').checked,
     difficultyMin:$( "#difficulty-range" ).slider( "values", 0 ),
     difficultyMax:$( "#difficulty-range" ).slider( "values", 1 ),
     scoreMin:$( "#score-range" ).slider( "values", 0 ),
     scoreMax:$( "#score-range" ).slider( "values", 1 ),
+    avgScoreMin:$( "#avg-score-range" ).slider( "values", 0 ),
+    avgScoreMax:$( "#avg-score-range" ).slider( "values", 1 ),
     ageMin:$( "#age-range" ).slider( "values", 0 ),
     ageMax:$( "#age-range" ).slider( "values", 1 ),
     tags: tagArray,
@@ -202,24 +233,32 @@ function getSettingsAsText(options) {
   //mode
   if (options.mode=='music-mode') {
     output+="Mode: Music\n";
-    if (options.importFromSpotify) output+="(Import your playlist from Spotify)\n";
+    if (options.importFromSpotify) {
+      output+="(Import your playlist from Spotify)\n";
+      output+="Import mode: "+options.importMode.toProperCase()+"\n";
+    }
   }
 
   if (options.mode=='anime-mode') {
     output+="Mode: Anime\n";
-    if (options.importFromAnilist) output+="(Import your list from Anilist)\n";
+    if (options.importFromAnilist) {
+      output+="(Import your list from Anilist)\n";
+      output+="Import mode: "+options.importMode.toProperCase()+"\n";
+    }
   }
 
-  output+="\n-Round Settings-\n";
+  output+="\n-Round Options-\n";
   output+=("Match by: "+options.matchBy.toProperCase()+"\n");
   output+=("Number of rounds: "+options.songs+"\n");
-  output+=("Round time limit: "+options.songs+"\n");
+  output+=("Round time limit: "+options.length+"\n");
 
-  output+="\n-Sort Settings-\n";
+  output+="\n-Filter Options-\n";
   output+=("Popularity: "+options.difficultyMin+'-'+options.difficultyMax+'\n');
   output+=("Year of release: "+options.ageMin+'-'+options.ageMax+'\n');
-  if (options.mode=='anime-mode' && options.importFromAnilist) {
-    output+=("Player score: "+options.scoreMin+'-'+options.scoreMax+'\n');
+  if (options.mode=='anime-mode'){
+    output+=("Average score: "+options.avgScoreMin+'-'+options.avgScoreMax+'\n');
+    if (options.importFromAnilist)
+      output+=("Player score: "+options.scoreMin+'-'+options.scoreMax+'\n');
   }
   if (options.mode=='music-mode' && options.tags.length != genres.length) {
     output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));

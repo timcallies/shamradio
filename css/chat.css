@@ -13,6 +13,7 @@ form#chat-form
 }
 #chat-button {
 
+
 }
 
 #chat-messages {
@@ -27,6 +28,7 @@ form#chat-form
   transition: all 0.5s;
   flex-direction: column;
   overflow-y: scroll;
+  background: white;
 }
 #chat-messages li {font-size: larger; padding: 5px 10px; background: #f9f9f9; }
 #chat-messages li:nth-child(odd) { background: #eee; }

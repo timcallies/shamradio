@@ -166,14 +166,13 @@ function connectToHost(hostid) {
 
   hostsocket.on('updateSettings', function(options){
     consoleMessage(getSettingsAsText(options));
-    updateSettings(options);
   });
 
   hostsocket.on('finishedround', function(playerPlaylists){
     $(".chat-container-mobile").css('width',"100%");
     hideInputScreen();
     //document.getElementById('cover').setAttribute("style", "opacity: 0.0;");
-    fadeOut(document.getElementById('cover'));
+    document.getElementById('cover').setAttribute("style", "display: none");
     socket.emit('finishedround',hostid);
     status = "finished";
     //Adds all the player scores from the array
@@ -258,6 +257,7 @@ function connectToHost(hostid) {
   });
 
   hostsocket.on("reopenhost", function(hostplayerlist) {
+    console.log('new');
     document.getElementById("endScreen").setAttribute("style", "display: none;");
     document.getElementById('setup').setAttribute("style", "display: block;");
   });
@@ -284,7 +284,7 @@ function Player(name){
 }
 
 function playAgain(){
-  socket.emit('reopenhost', sessionId, hostid);
+  socket.emit('reopenhost', getCookie('sessionId'), hostid);
 }
 
 var playerlist = [];
@@ -308,6 +308,11 @@ function getCookie(cname) {
 /*********************************************
 *             JQUERY ANIMATIONS              *
 *********************************************/
+$("#settings").click(function() {
+  $('#settings-window').fadeIn(500);
+});
+
+
 window.fadeIn = function(obj) {
   $(obj).fadeIn(1000);
 }
@@ -404,8 +409,6 @@ window.addEventListener('resize', function(event){
 *********************************************/
 settingsContainer('settings-container');
 
-$('#settings-window').css('display','none');
-
 function saveSettings(options) {
   socket.emit("savesettings",getCookie('sessionId'),hostid,options);
   $('#settings-window').fadeOut(300);
@@ -428,8 +431,8 @@ function submitGuess(msg) {
   hideInputScreen();
 }
 
-socket.on('possibleresults', function(tags) {
-  updateGuessChoices(tags);
+socket.on('possibleresults', function(tags,query) {
+  updateGuessChoices(tags,query);
 });
 
 String.prototype.hashCode = function(){

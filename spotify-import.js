@@ -210,14 +210,15 @@ function addSongFromSpotify(song) {
       year: parseInt(song.album.release_date.split('-')[0]),
       tags: "Music",
       type: "audio",
-      alternateTitles: [song.name],
-      alternateAlbums: [song.album.name],
-      alternateIds: [alternateArtists],
+      alternateTitles: [],
+      alternateAlbums: [],
+      alternateArtists: [alternateArtists],
+      alternateIds: [],
       wins: 1.0,
       losses: 1.0,
       ratio: 1.0,
     };
-    findDuplicateSongs(song);
+    //findDuplicateSongs(song);
     lastfm.updateSong(song);
   }
 }

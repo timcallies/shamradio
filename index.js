@@ -333,6 +333,7 @@ MongoClient.connect(url, function(err, db) {
           thisServer.isOnline=isOnline;
           publicserverlist.push(thisServer);
 
+          playlists.importSpotifyPlaylists(hostlist[hostid]);
           socket.emit('createserverresponse');
           io.of('/servers').emit('updateserverlist', shortServerList());
         });
@@ -398,13 +399,14 @@ MongoClient.connect(url, function(err, db) {
 
         //Music Mode
         if (hostlist[hostid].options.mode=='music-mode') {
-          if (hostlist[hostid].options.importFromSpotify==true)
+          if (hostlist[hostid].options.importFromSpotify==true && hostlist[hostid].playlist.length > 0)
           {
             query.push({
                 $match: {
                   songid: {$in: hostlist[hostid].playlist},
                   tags: {$in: hostlist[hostid].options.tags},
                   $and: [
+                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
                     { songid: { $not: { $eq: "dupe"} } },
                     { year: { $gte: theseOptions.ageMin } },
                     { year: { $lte:  theseOptions.ageMax } },
@@ -418,9 +420,10 @@ MongoClient.connect(url, function(err, db) {
           else {
             query.push({
                 $match: {
-                  songid: { $not: { $eq: "dupe"} },
                   tags: {$in: hostlist[hostid].options.tags},
                   $and: [
+                    { songid: { $not: { $eq: "dupe"} } },
+                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
                     { year: { $gte: theseOptions.ageMin } },
                     { year: { $lte:  theseOptions.ageMax } },
                     { popularity: { $gte: theseOptions.difficultyMin } },
@@ -433,17 +436,20 @@ MongoClient.connect(url, function(err, db) {
 
         //Anime Mode
         if (hostlist[hostid].options.mode=='anime-mode') {
-          if (hostlist[hostid].options.importFromAnilist==true)
+          if (hostlist[hostid].options.importFromAnilist==true && hostlist[hostid].playlist.length > 0)
           {
             query.push({
                 $match: {
                   $and: [
                     { idMal: {$in: hostlist[hostid].playlist} },
                     { songid: { $not: { $eq: "dupe"} } },
+                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
                     { year: { $gte: theseOptions.ageMin } },
                     { year: { $lte:  theseOptions.ageMax } },
                     { popularity: { $gte: theseOptions.difficultyMin } },
-                    { popularity: { $lte: theseOptions.difficultyMax } }
+                    { popularity: { $lte: theseOptions.difficultyMax } },
+                    { averageScore: { $gte: theseOptions.avgScoreMin } },
+                    { averageScore: { $lte: theseOptions.avgScoreMax } }
                   ]
                 }
               });
@@ -452,12 +458,15 @@ MongoClient.connect(url, function(err, db) {
           else {
             query.push({
                 $match: {
-                  songid: { $not: { $eq: "dupe"} },
                   $and: [
+                    {songid: { $not: { $eq: "dupe"} }},
+                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
                     { year: { $gte: theseOptions.ageMin } },
                     { year: { $lte:  theseOptions.ageMax } },
                     { popularity: { $gte: theseOptions.difficultyMin } },
-                    { popularity: { $lte: theseOptions.difficultyMax } }
+                    { popularity: { $lte: theseOptions.difficultyMax } },
+                    { averageScore: { $gte: theseOptions.avgScoreMin } },
+                    { averageScore: { $lte: theseOptions.avgScoreMax } }
                   ]
                 }
               });
@@ -476,6 +485,7 @@ MongoClient.connect(url, function(err, db) {
               socket.emit('errormessage', "Couldn't find enough songs to fit the settings.");
             }
             else {
+              hostlist[hostid].alreadyPlayed = [];
               beginPlaying(hostid,hostlist[hostid].timeStarted);
               fail=1;
             }
@@ -555,7 +565,7 @@ MongoClient.connect(url, function(err, db) {
               output=output.slice(0,5);
             }
 
-            socket.emit("possibleresults",output);
+            socket.emit("possibleresults",output,msg);
           });
         }
         //If we are sorting by playernames
@@ -567,7 +577,7 @@ MongoClient.connect(url, function(err, db) {
               output.push(player.username);
             }
           });
-          socket.emit("possibleresults",output);
+          socket.emit("possibleresults",output,msg);
         }
       }
     });
@@ -608,13 +618,13 @@ MongoClient.connect(url, function(err, db) {
       }
     });
 
-    socket.emit('reopenhost', function(sessionId, hostid){
+    socket.on('reopenhost', function(sessionId, hostid){
       if(!(hostid in hostlist)) return;
-      if(hostlist[hostid].hostPlayer!=sessionId) return;
+      if(hostlist[hostid].hostPlayer != sessionId) return;
       hostlist[hostid].playerlist.forEach(function(player){
         player.score=0;
       });
-      io.of('/'+hostid).emit('reopenhost',getPlayerList(hostid));
+      io.of('/'+hostid).emit('reopenhost', getPlayerList(hostid) );
       publicserverlist.push(hostlist[hostid]);
       hostlist[hostid].canjoin=1;
       io.of('/servers').emit('updateserverlist', shortServerList());
@@ -744,6 +754,7 @@ MongoClient.connect(url, function(err, db) {
     this.name=serverName;
     this.hostPlayer = undefined;
     this.playerlist = new Array();
+    this.alreadyPlayed = [];
 
     this.connectedplayers=0;
     this.canjoin=1;
@@ -765,16 +776,18 @@ MongoClient.connect(url, function(err, db) {
       matchBy:"title",
       songs: 10,
       length: 20,
-      importFromSpotify:false,
-      importFromAnilist:false,
-      difficultyMin:0,
-      difficultyMax:100,
-      scoreMin:1,
-      scoreMax:10,
-      ageMin:1960,
-      ageMax:2018,
-      tags:lastfm.getTags(),
-      importMode: "full"
+      importFromSpotify: true,
+      importFromAnilist: true,
+      difficultyMin: 50,
+      difficultyMax: 100,
+      scoreMin: 50,
+      scoreMax: 100,
+      avgScoreMin: 50,
+      avgScoreMax: 100,
+      ageMin: 1900,
+      ageMax: 2018,
+      tags: lastfm.getTags(),
+      importMode: "balanced"
     };
     var thisHost = io.of('/'+hostid);
     thisHost.on('connection', function(socket){
@@ -922,6 +935,8 @@ MongoClient.connect(url, function(err, db) {
           }
         }
 
+        hostlist[hostid].alreadyPlayed.push(doc.songid);
+
         if (hostoptions.mode=='music-mode'){
           hostlist[hostid].currentSong = doc.songid;
           io.of('/'+hostid).emit(
@@ -937,6 +952,7 @@ MongoClient.connect(url, function(err, db) {
             hostlist[hostid].options.length
           );
         }
+
         if (hostoptions.mode=='anime-mode') {
         hostlist[hostid].currentSong = doc.idMal;
           io.of('/'+hostid).emit(
@@ -1029,7 +1045,6 @@ MongoClient.connect(url, function(err, db) {
     if (!(hostid in hostlist)) {
       return;
     }
-    console.log('rip server');
 
     var newServerList = [];
     //Updates the publicserverlist
