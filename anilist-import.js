@@ -402,13 +402,6 @@ function addShow(data) {
 // Define our query variables and values that will be used in the query request
 
 function findOpFromAninx(song) {
-  options = {
-      method: 'GET',
-      headers: {
-          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
-      }
-  };
-
   try{
     var allNamesDuplicates=[];
     song.alternateNames.forEach(function(oneName){
@@ -441,8 +434,15 @@ function findOpFromAninx(song) {
     }
 
     function tryUrl(url) {
-      fetch("https://aninx.com"+url+'/', options)
+      var url="https://aninx.com"+url+'/';
+      var options = {
+          method: 'POST',
+          headers: {
+              'User-Agent': 'Mozilla/5.0'
+          }
+      };
 
+      fetch(url, options)
       .then(function(response) {
         if (response.status >= 400) {
             return null;
@@ -452,7 +452,7 @@ function findOpFromAninx(song) {
 
       .then(function (body) {
         if (body==null) return;
-
+        console.log('yeet');
         var array1 = body.split('<td class="fb-n"><a href="'+url);
 
         var i=0;

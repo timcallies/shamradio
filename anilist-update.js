@@ -12,7 +12,7 @@ MongoClient.connect(url, function(err, dbo) {
   //animelist.find({songid: {$not: {$eq: "dupe"}}, averageScore: {$not: {$gte: 0}}}).forEach(function(song) {
   //  songarray.push(song);
   //});
-  animetest.find().toArray().then(function(data) {
+  animetest.find({popularity: {$gte: 50}}).toArray().then(function(data) {
     data.forEach(function(song){
       songarray.push(song);
     });
