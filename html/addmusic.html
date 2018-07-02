@@ -58,9 +58,9 @@
       songs.forEach(function(doc) {
         $('#songs').append('<li id="'+doc.songid.hashCode()+'" action="">');
         if((''+doc.opNumber)!='')
-          $('#'+doc.songid.hashCode()).append($('<div>').text(doc.series+"     #"+doc.opNumber+"     "+doc.name+"     "+doc.year));
+          $('#'+doc.songid.hashCode()).append($('<div>').text(doc.series+" -- #"+doc.opNumber+" -- "+doc.name+" -- "+doc.year));
         else {
-          $('#'+doc.songid.hashCode()).append($('<div>').text(doc.series+"     "+doc.name+"     "+doc.year));
+          $('#'+doc.songid.hashCode()).append($('<div>').text(doc.series+" -- "+doc.name+" -- "+doc.year));
         }
         $('#'+doc.songid.hashCode()).append('<br>');
         $('#'+doc.songid.hashCode()).append('<input autocomplete="off" placeholder="URL"/>');
