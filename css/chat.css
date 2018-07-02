@@ -30,6 +30,8 @@ form#chat-form
   overflow-y: scroll;
   background: white;
 }
+
+#error-messages { background: #ff4343; }
 #chat-messages li {font-size: larger; padding: 5px 10px; background: #f9f9f9; }
 #chat-messages li:nth-child(odd) { background: #eee; }
 

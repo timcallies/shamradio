@@ -114,7 +114,7 @@ MongoClient.connect(url, function(err, db) {
   });
 
   app.get('/addmusic', function(req,res){
-    res.sendFile(__dirname + '/addmusic.html');
+    res.sendFile(__dirname + '/html/addmusic.html');
   });
 
   //Player page
@@ -265,12 +265,19 @@ MongoClient.connect(url, function(err, db) {
       });
     });
 
-    socket.on('animesongrequest', function(){
-      animeCollectionTest.aggregate([
-        {$sample: { size: 1 } }
-      ]).each(function(err, doc) {
-        if(doc)
-          socket.emit('animesongresponse',doc);
+    socket.on('animesongrequest', function(userSession){
+      accounts.checkUserSession(userSession).then(function(account) {
+        var thisPlaylist = [];
+        account.anilistPlaylist.forEach(function(data){
+          thisPlaylist.push(data[0]);
+        });
+        //console.log(thisPlaylist);
+
+        animeCollectionTest.find({idMal: { $in: thisPlaylist } }).toArray().then(function(doc) {
+          //console.log(doc);
+          if(doc)
+            socket.emit('animesongresponse',doc);
+        });
       });
     });
 
@@ -333,7 +340,7 @@ MongoClient.connect(url, function(err, db) {
           thisServer.isOnline=isOnline;
           publicserverlist.push(thisServer);
 
-          playlists.importSpotifyPlaylists(hostlist[hostid]);
+          //playlists.importSpotifyPlaylists(hostlist[hostid]);
           socket.emit('createserverresponse');
           io.of('/servers').emit('updateserverlist', shortServerList());
         });
@@ -370,135 +377,63 @@ MongoClient.connect(url, function(err, db) {
         }
         publicserverlist = newServerList;
 
-        //Sets the collection that the game will be using, and creates the personal playlists
-        if(hostlist[hostid].options.mode == 'anime-mode') {
-          hostlist[hostid].collection=animeCollection;
-        }
-        if(hostlist[hostid].options.mode=='music-mode') {
-          hostlist[hostid].collection=songCollection;
-        }
+        importAndStart();
 
-        //Generates the playlist for the game
-        var theseOptions = hostlist[hostid].options;
-        if (theseOptions.importMode=="full")
-        {
-          playlists.createFullPlaylist(hostlist[hostid]);
-        }
-        if (theseOptions.importMode=="balanced")
-        {
-          playlists.createBalancedPlaylist(hostlist[hostid]);
-        }
-        if (theseOptions.importMode=="shared")
-        {
-          playlists.createSharedPlaylist(hostlist[hostid]);
-        }
+        async function importAndStart() {
+          //Sets the collection that the game will be using, and creates the personal playlists
+          if(hostlist[hostid].options.mode == 'anime-mode') {
+            hostlist[hostid].collection=animeCollection;
+            await playlists.importAnilistPlaylists(hostlist[hostid]);
+          }
+          if(hostlist[hostid].options.mode=='music-mode') {
+            hostlist[hostid].collection=songCollection;
+            await playlists.importSpotifyPlaylists(hostlist[hostid]);
+          }
 
-        //Sets the query for the game
-        hostlist[hostid].query = [];
-        var query = hostlist[hostid].query;
-
-        //Music Mode
-        if (hostlist[hostid].options.mode=='music-mode') {
-          if (hostlist[hostid].options.importFromSpotify==true && hostlist[hostid].playlist.length > 0)
+          //Generates the playlist for the game
+          var theseOptions = hostlist[hostid].options;
+          if (theseOptions.importMode=="full")
           {
-            query.push({
-                $match: {
-                  songid: {$in: hostlist[hostid].playlist},
-                  tags: {$in: hostlist[hostid].options.tags},
-                  $and: [
-                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
-                    { songid: { $not: { $eq: "dupe"} } },
-                    { year: { $gte: theseOptions.ageMin } },
-                    { year: { $lte:  theseOptions.ageMax } },
-                    { popularity: { $gte: theseOptions.difficultyMin } },
-                    { popularity: { $lte: theseOptions.difficultyMax } }
-                  ]
-                }
-              });
+            playlists.createFullPlaylist(hostlist[hostid]);
           }
-
-          else {
-            query.push({
-                $match: {
-                  tags: {$in: hostlist[hostid].options.tags},
-                  $and: [
-                    { songid: { $not: { $eq: "dupe"} } },
-                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
-                    { year: { $gte: theseOptions.ageMin } },
-                    { year: { $lte:  theseOptions.ageMax } },
-                    { popularity: { $gte: theseOptions.difficultyMin } },
-                    { popularity: { $lte: theseOptions.difficultyMax } }
-                  ]
-                }
-              });
-          }
-        }
-
-        //Anime Mode
-        if (hostlist[hostid].options.mode=='anime-mode') {
-          if (hostlist[hostid].options.importFromAnilist==true && hostlist[hostid].playlist.length > 0)
+          if (theseOptions.importMode=="balanced")
           {
-            query.push({
-                $match: {
-                  $and: [
-                    { idMal: {$in: hostlist[hostid].playlist} },
-                    { songid: { $not: { $eq: "dupe"} } },
-                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
-                    { year: { $gte: theseOptions.ageMin } },
-                    { year: { $lte:  theseOptions.ageMax } },
-                    { popularity: { $gte: theseOptions.difficultyMin } },
-                    { popularity: { $lte: theseOptions.difficultyMax } },
-                    { averageScore: { $gte: theseOptions.avgScoreMin } },
-                    { averageScore: { $lte: theseOptions.avgScoreMax } }
-                  ]
-                }
-              });
+            playlists.createBalancedPlaylist(hostlist[hostid]);
+          }
+          if (theseOptions.importMode=="shared")
+          {
+            playlists.createSharedPlaylist(hostlist[hostid]);
           }
 
-          else {
-            query.push({
-                $match: {
-                  $and: [
-                    {songid: { $not: { $eq: "dupe"} }},
-                    { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
-                    { year: { $gte: theseOptions.ageMin } },
-                    { year: { $lte:  theseOptions.ageMax } },
-                    { popularity: { $gte: theseOptions.difficultyMin } },
-                    { popularity: { $lte: theseOptions.difficultyMax } },
-                    { averageScore: { $gte: theseOptions.avgScoreMin } },
-                    { averageScore: { $lte: theseOptions.avgScoreMax } }
-                  ]
-                }
-              });
-          }
-        }
+          generateQuery(hostid);
 
-        //Checks the query and ensures that there enough songs for a full game
-        var newQuery = [];
-        var fail = 0;
-        newQuery.push({ $count: "myCount" });
-        var query = hostlist[hostid].query.concat(newQuery);
-        var songDB = hostlist[hostid].collection.aggregate(query).each(function(err, doc) {
-          if(doc) {
-            console.log(doc.myCount);
-            if(doc.myCount<10) {
-              socket.emit('errormessage', "Couldn't find enough songs to fit the settings.");
+          //Checks the query and ensures that there enough songs for a full game
+          var newQuery = [];
+          var fail = 0;
+          newQuery.push({ $count: "myCount" });
+          var query = hostlist[hostid].query.concat(newQuery);
+          var songDB = hostlist[hostid].collection.aggregate(query).each(function(err, doc) {
+            if(doc) {
+              console.log(doc.myCount);
+              if(doc.myCount<theseOptions.songs) {
+                socket.emit('errormessage', "Couldn't find enough songs to fit the settings.");
+              }
+              else {
+                hostlist[hostid].alreadyPlayed = [];
+                beginPlaying(hostid,hostlist[hostid].timeStarted);
+                fail=1;
+              }
             }
-            else {
-              hostlist[hostid].alreadyPlayed = [];
-              beginPlaying(hostid,hostlist[hostid].timeStarted);
+            else if (fail==0) {
+              socket.emit('errormessage', "Couldn't find enough songs to fit the settings.");
               fail=1;
             }
-          }
-          else if (fail==0) {
-            socket.emit('errormessage', "Couldn't find enough songs to fit the settings.");
-            fail=1;
-          }
-          if(err) {
-            console.log(err);
-            socket.emit('errormessage', "Error when processing the playlist.");
-          }
-        });
+            if(err) {
+              console.log(err);
+              socket.emit('errormessage', "Error when processing the playlist.");
+            }
+          });
+        }
       }
     });
 
@@ -591,13 +526,6 @@ MongoClient.connect(url, function(err, db) {
         io.of('/'+hostid).emit('updateSettings',options);
         hostlist[hostid].options=options;
 
-        if(hostlist[hostid].options.mode == 'anime-mode') {
-          playlists.importAnilistPlaylists(hostlist[hostid]);
-        }
-        if(hostlist[hostid].options.mode=='music-mode') {
-          hostlist[hostid].collection=songCollection;
-          playlists.importSpotifyPlaylists(hostlist[hostid]);
-        }
         console.log(options);
       }
     });
@@ -664,13 +592,14 @@ MongoClient.connect(url, function(err, db) {
         thisServer.playerlist.push(thisPlayer);
 
         if(hostlist[hostid].options.importFromSpotify){
-          playlists.importSpotifyPlaylist(thisPlayer);
+          //playlists.importSpotifyPlaylist(thisPlayer);
         }
         if(hostlist[hostid].options.importFromAnilist){
-          playlists.importAnilistPlaylist(thisPlayer,hostlist[hostid]);
+          //playlists.importAnilistPlaylist(thisPlayer,hostlist[hostid]);
         }
 
         socket.emit('joinserverresponse');
+        io.of('/'+hostid).emit('consolemessage', (thisPlayer.username+ " joined the game."));
         io.of('/'+hostid).emit('sendPlayerList',getPlayerList(hostid));
         io.of('/servers').emit('updateserverlist', shortServerList());
       });
@@ -883,6 +812,7 @@ MongoClient.connect(url, function(err, db) {
     }
     hostlist[hostid].round++;
     var theseOptions = hostlist[hostid].options;
+    generateQuery(hostid);
     var newQuery = [];
     newQuery.push({ $sample: { size: 1 } });
     var query = hostlist[hostid].query.concat(newQuery);
@@ -935,10 +865,9 @@ MongoClient.connect(url, function(err, db) {
           }
         }
 
-        hostlist[hostid].alreadyPlayed.push(doc.songid);
-
         if (hostoptions.mode=='music-mode'){
           hostlist[hostid].currentSong = doc.songid;
+          hostlist[hostid].alreadyPlayed.push(doc.songid);
           io.of('/'+hostid).emit(
             'roundstart',
             [doc.name],
@@ -955,6 +884,7 @@ MongoClient.connect(url, function(err, db) {
 
         if (hostoptions.mode=='anime-mode') {
         hostlist[hostid].currentSong = doc.idMal;
+        hostlist[hostid].alreadyPlayed.push(doc.idMal);
           io.of('/'+hostid).emit(
             'roundstart',
             [doc.series],
@@ -970,6 +900,89 @@ MongoClient.connect(url, function(err, db) {
         }
       }
     });
+  }
+
+  function generateQuery(hostid) {
+    //Sets the query for the game
+    hostlist[hostid].query = [];
+    var theseOptions = hostlist[hostid].options;
+    var query = hostlist[hostid].query;
+
+    //Music Mode
+    if (hostlist[hostid].options.mode=='music-mode') {
+      if (hostlist[hostid].options.importFromSpotify==true && hostlist[hostid].playlist.length > 0)
+      {
+        query.push({
+            $match: {
+              songid: {$in: hostlist[hostid].playlist},
+              tags: {$in: hostlist[hostid].options.tags},
+              $and: [
+                { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
+                { songid: { $not: { $eq: "dupe"} } },
+                { year: { $gte: theseOptions.ageMin } },
+                { year: { $lte:  theseOptions.ageMax } },
+                { popularity: { $gte: theseOptions.difficultyMin } },
+                { popularity: { $lte: theseOptions.difficultyMax } }
+              ]
+            }
+          });
+      }
+
+      else {
+        query.push({
+            $match: {
+              tags: {$in: hostlist[hostid].options.tags},
+              $and: [
+                { songid: { $not: { $eq: "dupe"} } },
+                { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
+                { year: { $gte: theseOptions.ageMin } },
+                { year: { $lte:  theseOptions.ageMax } },
+                { popularity: { $gte: theseOptions.difficultyMin } },
+                { popularity: { $lte: theseOptions.difficultyMax } }
+              ]
+            }
+          });
+      }
+    }
+
+    //Anime Mode
+    if (hostlist[hostid].options.mode=='anime-mode') {
+      if (hostlist[hostid].options.importFromAnilist==true && hostlist[hostid].playlist.length > 0)
+      {
+        query.push({
+            $match: {
+              $and: [
+                { idMal: {$in: hostlist[hostid].playlist} },
+                { songid: { $not: { $eq: "dupe"} } },
+                { idMal: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
+                { year: { $gte: theseOptions.ageMin } },
+                { year: { $lte:  theseOptions.ageMax } },
+                { popularity: { $gte: theseOptions.difficultyMin } },
+                { popularity: { $lte: theseOptions.difficultyMax } },
+                { averageScore: { $gte: theseOptions.avgScoreMin } },
+                { averageScore: { $lte: theseOptions.avgScoreMax } }
+              ]
+            }
+          });
+      }
+
+      else {
+        query.push({
+            $match: {
+              $and: [
+                {songid: { $not: { $eq: "dupe"} }},
+                { idMal: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
+                { year: { $gte: theseOptions.ageMin } },
+                { year: { $lte:  theseOptions.ageMax } },
+                { popularity: { $gte: theseOptions.difficultyMin } },
+                { popularity: { $lte: theseOptions.difficultyMax } },
+                { averageScore: { $gte: theseOptions.avgScoreMin } },
+                { averageScore: { $lte: theseOptions.avgScoreMax } }
+              ]
+            }
+          });
+      }
+    }
   }
 
   /*******************************************
@@ -1011,8 +1024,10 @@ MongoClient.connect(url, function(err, db) {
       }
 
 
+
       if ((playerlist[sessionId].hostid in hostlist)) {
         var thisPlayer = playerlist[sessionId];
+        io.of('/'+thisPlayer.hostid).emit('consoleMessage', (thisPlayer.username+ " left the game."));
 
         var thisHost=hostlist[thisPlayer.hostid];
         var newPlayerList = [];

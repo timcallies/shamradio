@@ -81,3 +81,16 @@ function consoleMessage(msg){
   var element = document.getElementById("chat-messages");
   element.scrollTop = element.scrollHeight;
 }
+
+function errorMessage(msg){
+  var thisText = $('<li class="error-messages">').text(msg);
+  $('#chat-messages').append(thisText);
+  if(!hovering) {
+    $('#chat-messages').css("display","flex");
+    $('#chat-messages').css("height", thisText.outerHeight());
+    chatDisplayCounter=2000;
+  }
+
+  var element = document.getElementById("chat-messages");
+  element.scrollTop = element.scrollHeight;
+}

@@ -5,74 +5,81 @@ module.exports = {
     importAnilistPlaylists: importAnilistPlaylists,
     createFullPlaylist: createFullPlaylist,
     createBalancedPlaylist: createBalancedPlaylist,
-    createSharedPlaylist: createSharedPlaylist,
-    importSpotifyPlaylist: importSpotifyPlaylist,
-    importAnilistPlaylist: importAnilistPlaylist
+    createSharedPlaylist: createSharedPlaylist
 };
 
 function importSpotifyPlaylists(host){
-  host.playerlist.forEach(function(player){
-    player.personalPlaylist=[];
-    accounts.checkUserSession(player.userSession).then(function(account){
-      if (account!=null){
-        if (account.spotifyAccount!=undefined){
-          account.spotifyPlaylist.forEach(function(song) {
-            player.personalPlaylist.push(song);
-          });
+  return new Promise(resolve => {
+    var index = 0;
+    keepLooping();
+
+    //Repeatedly makes calls for the promise
+    function keepLooping(){
+      importOne(host.playerlist[index]).then(function(data) {
+        index++;
+        if(index < host.playerlist.length) {
+          keepLooping();
         }
-      }
-    })
+        else resolve();
+      });
+    }
   });
-}
 
-function importSpotifyPlaylist(player){
-  player.personalPlaylist=[];
-  accounts.checkUserSession(player.userSession).then(function(account){
-    if (account!=null){
-      if (account.spotifyAccount!=undefined){
-        account.spotifyPlaylist.forEach(function(song) {
-          player.personalPlaylist.push(song);
-        });
-      }
-    }
-  })
-}
 
-function importAnilistPlaylist(player,host){
-  player.personalPlaylist=[];
-  accounts.checkUserSession(player.userSession).then(function(account){
-    if (account!=null){
-      if (account.anilistAccount!=undefined){
-        account.anilistPlaylist.forEach(function(song) {
-          //console.log(song);
-          if(song[1]>=host.options.scoreMin && song[1] <= host.options.scoreMax) {
-            console.log(song);
-            player.personalPlaylist.push(song[0]);
+  //Imports a single player
+  function importOne(player) {
+    return new Promise((resolve,reject) => {
+      player.personalPlaylist=[];
+      accounts.checkUserSession(player.userSession).then(function(account){
+        if (account!=null){
+          if (account.spotifyAccount!=undefined){
+            account.spotifyPlaylist.forEach(function(song) {
+              player.personalPlaylist.push(song);
+            });
           }
-        });
-      }
-    }
-  })
+        }
+        resolve();
+      });
+    });
+  }
 }
 
 function importAnilistPlaylists(host){
-  host.playerlist.forEach(function(player){
-    player.personalPlaylist=[];
-    accounts.checkUserSession(player.userSession).then(function(account){
-      if (account!=null){
-        if (account.anilistAccount!=undefined){
-          account.anilistPlaylist.forEach(function(song) {
-            //console.log(song);
-            if(song[1]>=host.options.scoreMin && song[1] <= host.options.scoreMax) {
-              console.log(song);
-              player.personalPlaylist.push(song[0]);
-            }
-          });
+  return new Promise(resolve => {
+    var index = 0;
+    keepLooping();
+
+    //Repeatedly makes calls for the promise
+    function keepLooping(){
+      importOne(host.playerlist[index]).then(function(data) {
+        index++;
+        if(index < host.playerlist.length) {
+          keepLooping();
         }
-      }
-    })
-    console.log(host.playerlist);
+        else resolve();
+      });
+    }
   });
+
+
+  //Imports a single player
+  function importOne(player) {
+    return new Promise((resolve,reject) => {
+      player.personalPlaylist=[];
+      accounts.checkUserSession(player.userSession).then(function(account){
+        if (account!=null){
+          if (account.anilistAccount!=undefined){
+            account.anilistPlaylist.forEach(function(song) {
+              if(song[1]>=host.options.scoreMin && song[1] <= host.options.scoreMax) {
+                player.personalPlaylist.push(song[0]);
+              }
+            });
+          }
+        }
+        resolve();
+      });
+    });
+  }
 }
 
 function createFullPlaylist(host){
@@ -145,30 +152,19 @@ function createBalancedPlaylist(host){
 function createSharedPlaylist(host){
   host.playlist = [];
   var players = [];
+  var fullplaylist = {};
 
-  //Reduces the playlist to only players who have playlists
   host.playerlist.forEach(function(player){
-    if (player.length>0) {
-      players.push(player);
-    }
+    player.personalPlaylist.forEach(function(song){
+      if (fullplaylist[song] == undefined)
+        fullplaylist[song] = 1;
+      else
+        fullplaylist[song]++;
+    });
   });
 
-  //If there are playlists to sort through, finds only elements that appear in all playlists
-  if (players.length>0) {
-    players[0].forEach(function(song){
-      var addSong = true;
-      var i=1;
-
-      //Looks through every playlist and only adds the song if it appears in them all
-      while(i<players.length && addSong) {
-        if(players[i].indexOf(song)==0) {
-          addSong=false;
-        }
-        i++;
-      }
-      if(addSong){
-        host.playlist.push(song);
-      }
-    });
+  for (song in fullplaylist) {
+    if (fullplaylist[song] > players.length*0.66)
+      host.playlist.push(song);
   }
 }

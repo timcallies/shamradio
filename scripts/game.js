@@ -84,10 +84,7 @@ function changeName() {
 }
 
 socket.on('errormessage', function(msg){
-  alert(msg);
-  if (msg=="Couldn't find enough songs to fit the settings.") {
-    document.getElementById('begingame').disabled = false;
-  }
+  errorMessage(msg);
 });
 
 //Closes the host and begins the game
@@ -140,6 +137,10 @@ function connectToHost(hostid) {
   var hostsocket = io('/'+hostid);
 
   chatContainer("chat-container", socket, hostsocket);
+
+  hostsocket.on('consolemessage', function(msg){
+    consoleMessage(msg);
+  });
 
   //When a player joins
   hostsocket.on('sendPlayerList', function(hostplayerlist){

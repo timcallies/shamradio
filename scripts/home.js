@@ -105,3 +105,8 @@ String.prototype.hashCode = function(){
     }
     return hash;
 }
+
+if ('serviceWorker' in navigator) {
+  console.log("Will the service worker register?");
+  navigator.serviceWorker.register('service-worker.js');
+}

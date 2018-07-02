@@ -51,7 +51,10 @@
         <div id="anilist-setup" style="display:inline-flex;">
           <input id="anilist-name" placeholder="Anilist" autocomplete="off">
           <button id="anilist-button" onclick="importAnilist()">Import</button>
-        </div><button id="anilist-update" onclick="updateAnilist()" style="margin-left:10px;" disabled>Change/Update</button><br>
+        </div><br>
+
+        <button id="anilist-update" onclick="updateAnilist()" style="margin-top:10px;" disabled>Change/Update</button>
+        <button onclick="window.location.href = '/addmusic';" style="margin-left:10px;">Find Songs</button><br>
 
         Spotify -<br>
         <button id="spotify-button" href="#" onClick="window.open('/spotify','Login','resizable,height=400,width=370'); document.getElementById('spotify-button').disabled=true; return false;">Connect to Spotify</button>

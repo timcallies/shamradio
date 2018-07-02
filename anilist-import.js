@@ -265,6 +265,7 @@ function updateShow(show) {
     Media (id: $id, type: ANIME) {
       id
       popularity
+      averageScore
     }
   }`;
 
@@ -298,6 +299,7 @@ function updateShow(show) {
 
   function handleData(data) {
     show.popularity = (1-(1-(data.data.Media.popularity*1.0)/mostPopular)**5)*100;
+    show.averageScore = data.data.Media.averageScore;
     //console.log(show.series, show.popularity);
     animeCollection.save(show);
   }
@@ -394,12 +396,19 @@ function addShow(data) {
               }
             });
           });
-        } catch (err) {console.log(err);}
+        } catch (err) {}
       });
 }
 // Define our query variables and values that will be used in the query request
 
 function findOpFromAninx(song) {
+  options = {
+      method: 'GET',
+      headers: {
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+      }
+  };
+
   try{
     var allNamesDuplicates=[];
     song.alternateNames.forEach(function(oneName){
@@ -425,19 +434,17 @@ function findOpFromAninx(song) {
     else {
       allNames.forEach(function(thisName){
         ["Autumn","Spring","Winter","Summer"].forEach(function(season){
-          var url ='/'+yearText+"/"+season+"/"+encodeURI(thisName);
+          var url ='/'+yearText+"/"+season+"/"+encodeURIComponent(thisName);
           tryUrl(url);
         });
       });
     }
 
     function tryUrl(url) {
-      //console.log(url);
-      fetch("https://aninx.com"+url+'/')
+      fetch("https://aninx.com"+url+'/', options)
 
       .then(function(response) {
         if (response.status >= 400) {
-          //console.log(response.status)
             return null;
         }
         return response.text();

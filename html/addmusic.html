@@ -1,35 +1,80 @@
 <!doctype html>
 <html>
+<head><title>HMQ - Add Music</title></head>
+  <style>
+    @import url("/css/style.css");
+    @import url("/css/home.css");
+    li{
+      padding: 10px;
+      background: none;
+      display: block;
+      border-bottom: 3px #ddd dashed;
+      align-items: center;
+      margin-top: 0px;
+      font-size: large;
+    }
+
+    select {
+      font-size: large;
+      height: 56px;
+    }
+  </style>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <body>
-    <div id="name"></div>
-    <form id="addmusic" action="">
-      URL <input id="url" autocomplete="off" />
-      Type
-      <select id="type">
-        <option value="" disabled="disabled" selected="selected">Select a type</option>
-        <option value="video/webm">WEBM</option>
-        <option value="youtube">YouTube</option>
-        <option value="music">MP3</option>
-    </select>
-      <button>Send</button>
-    </form>
+    <div id="header">
+      <a id="sitename" href="/">HMQ</a>
+      <button class='login-button' id="login-button" onclick="window.location.href = '/login';">Login</button>
+      <button class='login-button' id="account-button" onclick="window.location.href = '/account';">My Account</button>
+    </div>
+    <div id="mainscreen">
+      <ul id = "songs"></ul>
+    </div>
+    <div id="mainscreen-bg"></div>
   </body>
   <script>
     var socket = io();
-    var thisSong = undefined;
-
-    window.onload = function(){
-      socket.emit('animesongrequest');
+    var array;
+    if(getCookie("userSession")==''){
+      document.getElementById("login-button").setAttribute("style", "display: inline-block;");
+    }
+    else {
+      document.getElementById("account-button").setAttribute("style", "display: inline-block;");
     }
 
 
-    socket.on('animesongresponse', function(doc) {
-      console.log(doc);
-      $('#name').text(doc.series+" #"+doc.opNumber+"|"+doc.name);
-      thisSong=doc;
+    window.onload = function(){
+      socket.emit('animesongrequest', getCookie('userSession'));
+    }
+
+
+    socket.on('animesongresponse', function(songs) {
+      songs.sort(function(a, b) {
+        return a.series.localeCompare(b.series);
+      });
+      array = songs;
+
+      var count=0;
+      songs.forEach(function(doc) {
+        $('#songs').append('<li id="'+doc.songid.hashCode()+'" action="">');
+        $('#'+doc.songid.hashCode()).append($('<div>').text(doc.series+" #"+doc.opNumber+"|"+doc.name));
+        $('#'+doc.songid.hashCode()).append('<br>');
+        $('#'+doc.songid.hashCode()).append('<input autocomplete="off" placeholder="URL"/>');
+        $('#'+doc.songid.hashCode()).append('<select>');
+        $('#'+doc.songid.hashCode()+'>select').append('<option value="video/webm" selected="selected">WEBM</option>');
+        $('#'+doc.songid.hashCode()+'>select').append('<option value="youtube">YouTube</option>');
+        $('#'+doc.songid.hashCode()).append($('<button onclick="submit('+count+')">').text('Send'));
+        count++;
+      });
     });
+
+    function submit(count) {
+      var thisSong = array[count];
+      thisSong.url = $('#'+thisSong.songid.hashCode()+'>input').val();
+      thisSong.type = $('#'+thisSong.songid.hashCode()+'>select').val();
+      $('#'+thisSong.songid.hashCode()).css('display','none');
+      socket.emit('animesongupdate', thisSong);
+    }
 
     $(function () {
       $('#addmusic').submit(function(){
@@ -41,5 +86,31 @@
         return false;
       });
     });
+
+    function getCookie(cname) {
+      //Stolen from w3schools
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
+      }
+      return "";
+    }
+
+    String.prototype.hashCode = function(){
+        var hash = 0;
+        for (var i = 0; i < this.length; i++) {
+            var character = this.charCodeAt(i);
+            hash = ((hash<<5)-hash)+character;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash;
+    }
   </script>
 </html>
