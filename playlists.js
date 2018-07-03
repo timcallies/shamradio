@@ -27,21 +27,23 @@ function importSpotifyPlaylists(host){
 
 
   //Imports a single player
-  function importOne(player) {
-    return new Promise((resolve,reject) => {
-      player.personalPlaylist=[];
-      accounts.checkUserSession(player.userSession).then(function(account){
-        if (account!=null){
-          if (account.spotifyAccount!=undefined){
-            account.spotifyPlaylist.forEach(function(song) {
-              player.personalPlaylist.push(song);
-            });
-          }
+
+}
+
+function importOne(player) {
+  return new Promise((resolve,reject) => {
+    player.personalPlaylist=[];
+    accounts.checkUserSession(player.userSession).then(function(account){
+      if (account!=null){
+        if (account.spotifyAccount!=undefined){
+          account.spotifyPlaylist.forEach(function(song) {
+            player.personalPlaylist.push(song);
+          });
         }
-        resolve();
-      });
+      }
+      resolve();
     });
-  }
+  });
 }
 
 function importAnilistPlaylists(host){

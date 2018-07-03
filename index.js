@@ -356,6 +356,13 @@ MongoClient.connect(url, function(err, db) {
       } catch (err) {console.log(err);}
     });
 
+    socket.on('settingsDOMrequest', function(sessionId,hostid){
+      if(hostid in hostlist){
+        if(hostlist[hostid].hostPlayer!=sessionId) return;
+        socket.emit('settingsDOMresponse',hostlist[hostid].options);
+      }
+    });
+
     //Closes a host so that a game can begin.
     socket.on('closehost', function(sessionId, hostid){
       if(hostid in hostlist){
@@ -715,8 +722,10 @@ MongoClient.connect(url, function(err, db) {
       avgScoreMax: 100,
       ageMin: 1900,
       ageMax: 2018,
+      oped: 'openings',
       tags: lastfm.getTags(),
-      importMode: "balanced"
+      importMode: "balanced",
+      customQuery: undefined
     };
     var thisHost = io.of('/'+hostid);
     thisHost.on('connection', function(socket){
@@ -883,8 +892,8 @@ MongoClient.connect(url, function(err, db) {
         }
 
         if (hostoptions.mode=='anime-mode') {
-        hostlist[hostid].currentSong = doc.idMal;
-        hostlist[hostid].alreadyPlayed.push(doc.idMal);
+        hostlist[hostid].currentSong = doc.songid;
+        hostlist[hostid].alreadyPlayed.push(doc.songid);
           io.of('/'+hostid).emit(
             'roundstart',
             [doc.series],
@@ -947,14 +956,19 @@ MongoClient.connect(url, function(err, db) {
 
     //Anime Mode
     if (hostlist[hostid].options.mode=='anime-mode') {
+      var oped = [];
+      if (hostlist[hostid].options.oped == 'openings') {oped=[false];}
+      if (hostlist[hostid].options.oped == 'endings') {oped=[true];}
+      if (hostlist[hostid].options.oped == 'both') {oped=[true,false];}
       if (hostlist[hostid].options.importFromAnilist==true && hostlist[hostid].playlist.length > 0)
       {
         query.push({
             $match: {
               $and: [
                 { idMal: {$in: hostlist[hostid].playlist} },
+                { ending: {$in: oped} },
                 { songid: { $not: { $eq: "dupe"} } },
-                { idMal: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
+                { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
                 { year: { $gte: theseOptions.ageMin } },
                 { year: { $lte:  theseOptions.ageMax } },
                 { popularity: { $gte: theseOptions.difficultyMin } },
@@ -970,8 +984,9 @@ MongoClient.connect(url, function(err, db) {
         query.push({
             $match: {
               $and: [
-                {songid: { $not: { $eq: "dupe"} }},
-                { idMal: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
+                { ending: {$in: oped} },
+                { songid: { $not: { $eq: "dupe"} }},
+                { songid: { $not: { $in: hostlist[hostid].alreadyPlayed} } },
                 { year: { $gte: theseOptions.ageMin } },
                 { year: { $lte:  theseOptions.ageMax } },
                 { popularity: { $gte: theseOptions.difficultyMin } },
@@ -982,6 +997,9 @@ MongoClient.connect(url, function(err, db) {
             }
           });
       }
+    }
+    if(theseOptions.customQuery!=undefined) {
+      query.push(theseOptions.customQuery);
     }
   }
 

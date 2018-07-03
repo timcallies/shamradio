@@ -323,8 +323,6 @@ function addShow(data) {
 
       .then(function (body) {
         try {
-          var openings=body.split('<div class="theme-songs js-theme-songs ending">')[0].split('<span class="theme-song">');
-
           var openingSongs = [];
           //Find all the titles of the series
           var alltitles = [];
@@ -336,33 +334,42 @@ function addShow(data) {
             alltitles.shift();
           }
 
-          for (var i=1; i< openings.length; i++) {
-            op = openings[i].split("</span>")[0];
-            var number = op.split("&quot;")[0].split("#").join('').split(":").join('').trim();
-            var name = op.split("&quot;")[1].trim();
-            var artist = op.split("&quot;")[2].split(" by ")[1].split(" (ep")[0].trim();
+          getOped('op',0);
+          getOped('ed',1);
 
-            //Create the song object
-            song = {
-              songid: ("op#"+data.id+"#"+number),
-              idMal: ("mal#"+data.idMal),
-              idAlist: ("alist#"+data.id),
-              name: name,
-              series: data.title.romaji,
-              artist: artist,
-              opNumber: number,
-              coverart: undefined,
-              url: "Unknown",
-              popularity: (1-(1-(data.popularity*1.0)/mostPopular)**5)*100,
-              year: parseInt(data.startDate.year),
-              type: "Unknown",
-              alternateNames: alltitles,
-              averageScore: data.averageScore,
-              wins: 1.0,
-              losses: 1.0,
-              ratio: 1.0,
-            };
-            openingSongs.push(song);
+          function getOped(oped,num) {
+            var openings=body.split('<div class="theme-songs js-theme-songs ending">')[num].split('<span class="theme-song">');
+
+            for (var i=1; i< openings.length; i++) {
+              op = openings[i].split("</span>")[0];
+              var number = op.split("&quot;")[0].split("#").join('').split(":").join('').trim();
+              var name = op.split("&quot;")[1].trim();
+              var artist = op.split("&quot;")[2].split(" by ")[1].split(" (ep")[0].trim();
+
+              //Create the song object
+              song = {
+                songid: (oped+"#"+data.id+"#"+number),
+                idMal: ("mal#"+data.idMal),
+                idAlist: ("alist#"+data.id),
+                name: name,
+                series: data.title.romaji,
+                artist: artist,
+                opNumber: number,
+                coverart: undefined,
+                url: "Unknown",
+                popularity: (1-(1-(data.popularity*1.0)/mostPopular)**5)*100,
+                year: parseInt(data.startDate.year),
+                type: "Unknown",
+                alternateNames: alltitles,
+                averageScore: data.averageScore,
+                ending:(oped=='ed'),
+                wins: 1.0,
+                losses: 1.0,
+                ratio: 1.0,
+              };
+              openingSongs.push(song);
+            }
+
           }
 
           alltitles.push(data.title.romaji);
@@ -459,7 +466,11 @@ function findOpFromAninx(song) {
         var match=false;
         while (i<array1.length && match==false){
           var songurl = array1[i].split('">')[0];
-          if(songurl.indexOf("%5BOP"+song.opNumber+"%5D")>0) {
+          var prefix = "%5BOP";
+          if(song.ending) {
+            prefix="%5BED";
+          }
+          if(songurl.indexOf(prefix+song.opNumber+"%5D")>0) {
             song.url = "https://aninx.com"+url+songurl;
             song.type = 'video/webm';
             console.log(song.url);

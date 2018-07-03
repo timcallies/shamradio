@@ -22,6 +22,11 @@ const genres = [
 ];
 var canImport = false;
 
+var filterGroup;
+var filterElement;
+var filterPlus;
+var filterButton;
+
 function settingsContainer(container) {
   $.get("/scripts/settings.html", function(data){
     document.getElementById(container).innerHTML=data;
@@ -52,6 +57,12 @@ function settingsContainer(container) {
       }
     });
 
+    filterElement = $('.filter').clone();
+    filterPlus = $('.filter-add-box').clone();
+    filterGroup = $('.filter-group').detach();
+    filterButton = $('.rule-button').clone();
+    refreshButtons();
+
     $("#anime-mode").click(function() {
       $(".music-settings").css("display","none");
       $(".anime-settings").css("display","block");
@@ -67,7 +78,7 @@ function settingsContainer(container) {
     });
 
     function updateImport() {
-      if (( (($('input[name=radio]:checked').val() == 'music-mode')) &&
+      if (( (($('input[name=radio]:checked').val() == 'anime-mode')) &&
             ($('input[id=settings-import-anilist]').attr('checked'))) ||
           ( (($('input[name=radio]:checked').val() == 'music-mode')) &&
             ($('input[id=settings-import-spotify]').attr('checked')))) {
@@ -188,7 +199,6 @@ function settingsContainer(container) {
 }
 
 
-
 function finalizeSettings() {
   var thisMatchBy;
   var tagArray = [];
@@ -217,14 +227,17 @@ function finalizeSettings() {
     difficultyMax:$( "#difficulty-range" ).slider( "values", 1 ),
     scoreMin:$( "#score-range" ).slider( "values", 0 ),
     scoreMax:$( "#score-range" ).slider( "values", 1 ),
+    oped: $('input[name=radio-oped]:checked').val(),
     avgScoreMin:$( "#avg-score-range" ).slider( "values", 0 ),
     avgScoreMax:$( "#avg-score-range" ).slider( "values", 1 ),
     ageMin:$( "#age-range" ).slider( "values", 0 ),
     ageMax:$( "#age-range" ).slider( "values", 1 ),
     tags: tagArray,
     importMode:$('input[name=radio-import]:checked').val(),
+    customQuery: getQuery()
   };
   saveSettings(options);
+  console.log(getQuery());
 }
 
 function getSettingsAsText(options) {
@@ -256,6 +269,7 @@ function getSettingsAsText(options) {
   output+=("Popularity: "+options.difficultyMin+'-'+options.difficultyMax+'\n');
   output+=("Year of release: "+options.ageMin+'-'+options.ageMax+'\n');
   if (options.mode=='anime-mode'){
+    output+=("Openings/Endings: "+options.oped.toProperCase()+'\n');
     output+=("Average score: "+options.avgScoreMin+'-'+options.avgScoreMax+'\n');
     if (options.importFromAnilist)
       output+=("Player score: "+options.scoreMin+'-'+options.scoreMax+'\n');
@@ -264,10 +278,244 @@ function getSettingsAsText(options) {
     output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));
   }
 
-
   return output;
 }
 
 String.prototype.toProperCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
+
+/***********************************
+*             FILTERS              *
+***********************************/
+
+function createRules(){
+  $('#advanced-option-group').append(filterGroup.clone());
+  $('#rule-button').remove();
+  checkMode();
+  refreshButtons();
+}
+
+function refreshButtons() {
+  $('.filter-delete').click(function(){
+    if($(this).parent().parent().children().length==3){
+      $(this).parent().parent().remove();
+    }
+
+    if($(this).parent().parent().children('.filter, .filterGroup').length == 5){
+      $(this).parent().parent().append(filterPlus.clone());
+      refreshButtons();
+    }
+
+    $(this).parent().remove();
+
+    if( $('#advanced-option-group').children().length == 0)
+      $('#advanced-option-group').append("    <button id='rule-button' onclick='createRules()'>Create Rules</button>");
+  });
+
+  $('.filter-add').click(function(){
+    $('.filter-add').off("click");
+    var group = $(this).parent().parent();
+    var text = $(this).text();
+    $(this).parent().remove();
+
+    if(text=='+'){
+      group.append(filterElement.clone());
+    }
+
+    else {
+      var newgroup=filterGroup.clone();
+      group.append(newgroup);
+      if(group.css('background-color') == 'rgb(228, 228, 228)') {
+        newgroup.css('background-color','#d0d0d0');
+      }
+    }
+
+    checkMode();
+
+    if(group.children('.filter, .filterGroup').length < 5)
+      group.append(filterPlus.clone());
+    refreshButtons();
+  });
+}
+
+function checkMode() {
+  if ($('input[name=radio]:checked').val() == 'anime-mode') {
+    $(".music-settings").css("display","none");
+    $(".anime-settings").css("display","block");
+  }
+  else {
+    $(".music-settings").css("display","block");
+    $(".anime-settings").css("display","none");
+  }
+}
+
+function getQuery() {
+  if (($('#advanced-option-group > div')).length == 0) return undefined;
+
+  var query = getQueryFromGroup(($('#advanced-option-group > div:first-child')),0).slice(0,-2);
+  console.log(query);
+  return JSON.parse('{"$match": '+query+'}');
+}
+
+function getQueryFromGroup(object,t) {
+  var tabs = "\t".repeat(t);
+  var type = object.children('form').find('input:checked').val();
+  var output = tabs + '{"' + type + '": [\n';
+  object.children('.filter').each(function(){
+    output += getQueryFromItem($(this),t+1)
+  });
+  object.children('.filter-group').each(function(){
+    output += getQueryFromGroup($(this),t+1)
+  });
+  output = output.slice(0, -2) + '\n' + tabs + ']},\n';
+  return output;
+}
+
+function getQueryFromItem(object,t){
+  var tabs = "\t".repeat(t);
+  var type;
+  var output;
+  //Get the selected type
+  if ($('input[name=radio]:checked').val() == 'anime-mode') {
+    type=object.children('.anime-settings').val();
+  }
+  else {
+    type=object.children('.music-settings').val();
+  }
+
+  //Get the user input
+  var input = object.children('input').val();
+
+  //If the user wants an exact match
+  if(object.children('select:last-of-type').val() == 'is') {
+    return (tabs+'{"'+type+'": "'+input+'"},\n');
+  }
+
+  if(object.children('select:last-of-type').val() == 'is not') {
+    return (tabs+'{"'+type+'": {"$not": {"$eq": "'+input+'"}}},\n');
+  }
+
+  if(object.children('select:last-of-type').val() == 'contains') {
+    return (tabs+'{"'+type+'": {"$regex": "'+input+'", "$options": "i"}},\n');
+  }
+
+  return '\n';
+}
+
+function refreshSettings(hostsettings) {
+  $('#settings-select-mode').find('input[value="'+hostsettings.mode+'"]').prop("checked", true);
+
+  $('#settings-guess-music').val(hostsettings.matchBy);
+  $('#settings-guess-anime').val(hostsettings.matchBy);
+  $('#settings-import-spotify').prop("checked", hostsettings.importFromSpotify);
+  $('#settings-import-anilist').prop("checked", hostsettings.importFromAnilist);
+  $('#settings-import-mode').find('input[value="'+hostsettings.importMode+'"]').prop("checked", true);
+  $('#settings-import-mode').find('input[value="'+hostsettings.importMode+'"]').prop("checked", true);
+    $('#settings-oped').find('input[value="'+hostsettings.oped+'"]').prop("checked", true);
+
+  $('#songs-range').slider('value',hostsettings.songs);
+  $( "#songs-text" ).val(($( "#songs-range" ).slider( "value")));
+
+  $('#length-range').slider('value',hostsettings.length);
+  $( "#length-text" ).val(($( "#length-range" ).slider( "value")));
+
+  $('#difficulty-range').slider('values',0,hostsettings.difficultyMin);
+  $('#difficulty-range').slider('values',1,hostsettings.difficultyMax);
+  $( "#difficulty-text" ).val(($( "#difficulty-range" ).slider( "values", 0 ) +
+    " - " + $( "#difficulty-range" ).slider( "values", 1 ) ));
+
+  $('#age-range').slider('values',0,hostsettings.ageMin);
+  $('#age-range').slider('values',1,hostsettings.ageMax);
+  $( "#age-text" ).val(($( "#age-range" ).slider( "values", 0 ) +
+    " - " + $( "#age-range" ).slider( "values", 1 ) ));
+
+  $('#score-range').slider('values',0,hostsettings.scoreMin);
+  $('#score-range').slider('values',1,hostsettings.scoreMax);
+  $( "#score-text" ).val(($( "#score-range" ).slider( "values", 0 ) +
+    " - " + $( "#score-range" ).slider( "values", 1 ) ));
+
+  $('#avg-score-range').slider('values',0,hostsettings.avgScoreMin);
+  $('#avg-score-range').slider('values',1,hostsettings.avgScoreMax);
+  $( "#avg-score-text" ).val(($( "#avg-score-range" ).slider( "values", 0 ) +
+    " - " + $( "#avg-score-range" ).slider( "values", 1 ) ));
+
+  if (hostsettings.customQuery!=undefined) {
+    $('#advanced-option-group').empty();
+    var group = hostsettings.customQuery.$match;
+    for (query in group) {
+      console.log(query);
+      if(query=='$and'){
+        addGroup(group[query],'$and',$('#advanced-option-group'));
+      }
+      if(query=='$or'){
+        addGroup(group[query],'$or',$('#advanced-option-group'))
+      }
+    }
+  }
+
+  console.log(hostsettings);
+
+  function addGroup(thisgroup, andor, parent) {
+    var groupobject = filterGroup.clone();
+    parent.append(groupobject);
+    if(parent.css('background-color') == 'rgb(228, 228, 228)') {
+      groupobject.css('background-color','#d0d0d0');
+    }
+    groupobject.children('div').remove();
+    groupobject.children('form').find('input[value="'+andor+'"]').prop("checked", true);
+
+    thisgroup.forEach(function(item){
+
+      var key;
+      for (thiskey in item){
+        key=thiskey;
+      }
+
+      if(key == '$and') {
+        addGroup(item.$and,'$and',groupobject);
+      }
+
+      else if(key == '$or') {
+        addGroup(item.$or,'$or',groupobject);
+      }
+
+      else {
+        var itemObject = filterElement.clone();
+        groupobject.append(itemObject);
+        var val;
+        var mode;
+
+        if (item[key].$not != undefined){
+          val = item[key].$not.$eq;
+          mode = 'is not';
+        }
+        else if (item[key].$regex != undefined){
+          val = item[key].$regex;
+          mode = 'contains';
+        }
+        else {
+          val = item[key];
+          mode = 'is';
+        }
+
+        itemObject.find('input').val(val);
+        itemObject.find('select:last-of-type').val(mode);
+
+        console.log(val,mode);
+        if(hostsettings.mode=='music-mode'){
+          itemObject.find('.music-settings').val(key);
+        }
+
+        else if(hostsettings.mode=='anime-mode'){
+          itemObject.find('.anime-settings').val(key);
+        }
+
+      }
+    });
+    if(groupobject.children('.filter, .filterGroup').length < 5)
+      groupobject.append(filterPlus.clone());
+  }
+  checkMode();
+  refreshButtons();
+}

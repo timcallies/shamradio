@@ -12,9 +12,11 @@ MongoClient.connect(url, function(err, dbo) {
   //animelist.find({songid: {$not: {$eq: "dupe"}}, averageScore: {$not: {$gte: 0}}}).forEach(function(song) {
   //  songarray.push(song);
   //});
-  animetest.find({popularity: {$gte: 50}}).toArray().then(function(data) {
+  animetest.find().toArray().then(function(data) {
     data.forEach(function(song){
-      songarray.push(song);
+      //songarray.push(song);
+      song.ending=false;
+      animetest.save(song);
     });
   });
 });

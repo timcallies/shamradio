@@ -16,6 +16,7 @@
     position: absolute;
     opacity: 0;
     cursor: pointer;
+    display: none;
 }
 
 .settings-horizontal{
@@ -199,4 +200,32 @@ p.option-tab{
 .ui-slider{
   border: none !important;
   width: 90% !important;
+}
+
+.filter-group{
+  padding: 10px;
+  background-color: #e4e4e4;
+}
+
+.filter-add {
+  font-style: italic;
+  font-weight: bold;
+  color: gray;
+  font-size: x-large;
+  text-align: center;
+  cursor: pointer;
+  padding: 10px;
+  width: 50%;
+}
+.filter-add:hover {
+  background-color: rgba(88, 88, 88, 0.3);
+}
+
+.filter-add-box {
+  display: flex;
+
+}
+
+.filter {
+  display:flex;
 }

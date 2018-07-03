@@ -1,4 +1,4 @@
-<form id="gamesettings" action="" autocomplete="off">
+<div id="gamesettings" action="" autocomplete="off">
   <p class="optionheader" style="margin-top:0px;">Mode:</p>
   <div id="settings-select-mode" class="settings-horizontal">
     <label id="music-mode" class="radiobuttons">Music<input value="music-mode" type="radio" checked="checked" name="radio"><span class="checkmark"></span></label>
@@ -34,19 +34,25 @@
   <p id= "import-option" class="option-tab">Import Options</p>
   <div id = "import-option-group" class="option-group">
     <p class="optionheader">Allow import from:</p>
-    <label class="checkboxcontainer music-settings" >Spotify<input type="checkbox" checked="checked" id="settings-import-spotify"><span class="checkboxmark"></span></label>
-    <label class="checkboxcontainer anime-settings">Anilist<input type="checkbox" checked="checked" id="settings-import-anilist"><span class="checkboxmark"></span></label>
+    <label class="checkboxcontainer music-settings">Spotify<input type="checkbox" id="settings-import-spotify"><span class="checkboxmark"></span></label>
+    <label class="checkboxcontainer anime-settings">Anilist<input type="checkbox" id="settings-import-anilist"><span class="checkboxmark"></span></label>
 
     <div id="import-mode>"<p class="optionheader">Import mode:</p>
     <div id="settings-import-mode" class="settings-horizontal">
-      <label id="balanced-import" class="radiobuttons">Balanced<input value="balanced" type="radio" name="radio-import" checked="checked"><span class="checkmark"></span></label>
-      <label id="full-import" class="radiobuttons">Full playlists<input value="full" type="radio" name="radio-import"><span class="checkmark"></span></label>
+      <label id="full-import" class="radiobuttons">Full playlists<input value="full" type="radio" name="radio-import" checked="checked"><span class="checkmark"></span></label>
+      <label id="balanced-import" class="radiobuttons">Balanced<input value="balanced" type="radio" name="radio-import"><span class="checkmark"></span></label>
       <label id="shared-import" class="radiobuttons">Shared songs<input value="shared" type="radio" name="radio-import"><span class="checkmark"></span></label>
     </div></div>
   </div>
 
   <p id= "filter-option" class="option-tab">Filter Options</p>
   <div id = "filter-option-group" class="option-group">
+    <div class='anime-settings'><p class="optionheader">Openings/Endings:</p>
+    <div id="settings-oped" class="settings-horizontal">
+      <label id="openings" class="radiobuttons">Openings<input value="openings" type="radio" name="radio-oped" checked="checked"><span class="checkmark"></span></label>
+      <label id="endings" class="radiobuttons">Endings<input value="endings" type="radio" name="radio-oped"><span class="checkmark"></span></label>
+      <label id="both" class="radiobuttons">Both<input value="both" type="radio" name="radio-oped"><span class="checkmark"></span></label>
+    </div></div>
     <p> <label for="difficulty-text">Popularity range:</label>
       <input type="text" id="difficulty-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
     </p>
@@ -73,5 +79,40 @@
       </div>
     </div>
   </div>
-</form>
+  <p id= "advanced-option" class="option-tab">Advanced Options</p>
+  <div id = "advanced-option-group" class="option-group" style="margin-left:0px">
+    <button id='rule-button' onclick="createRules()">
+      Create Rules
+    </button>
+    <div class='filter-group' style="background-color: #e4e4e4;">
+      <form class="settings-horizontal" style="justify-content:space-around;">
+        <label class="radiobuttons">AND<input value="$and" type="radio" name='1' checked="checked"><span class="checkmark"></span></label>
+        <label class="radiobuttons">OR<input value="$or" type="radio" name='1'><span class="checkmark"></span></label>
+      </form>
+      <div class='filter'>
+        <select class="anime-settings">
+          <option value="series">Series</option>
+          <option value="title">Title</option>
+          <option value="artist">Artist</option>
+        </select>
+        <select class="music-settings">
+          <option value="title">Title</option>
+          <option value="album">Album</option>
+          <option value="artist">Artist</option>
+        </select>
+        <select>
+          <option value="is">is</option>
+          <option value="is not">is not</option>
+          <option value="contains">contains</option>
+        </select>
+        <input style="flex-grow: 1; width:35%;"></input>
+        <button class='filter-delete'>Delete</button>
+      </div>
+      <div class = 'filter-add-box'>
+        <div class = 'filter-add'>+</div>
+        <div class = 'filter-add'>ADD GROUP</div>
+      </div>
+    </div>
+  </div>
+</div>
 <button id="settings-button" onclick="finalizeSettings()" style="margin-top:10px;">Save Settings</button>

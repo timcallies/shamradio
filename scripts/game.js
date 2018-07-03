@@ -310,8 +310,13 @@ function getCookie(cname) {
 *             JQUERY ANIMATIONS              *
 *********************************************/
 $("#settings").click(function() {
-  $('#settings-window').fadeIn(500);
+  socket.emit('settingsDOMrequest',getCookie('sessionId'),hostid);
 });
+
+socket.on('settingsDOMresponse', function(hostsettings){
+  refreshSettings(hostsettings);
+  $('#settings-window').fadeIn(500);
+})
 
 
 window.fadeIn = function(obj) {
