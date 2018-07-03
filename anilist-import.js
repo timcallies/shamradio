@@ -202,7 +202,7 @@ function getTopShows(page_count, per_page) {
   var query = `
   query ($perPage: Int, $page: Int) {
     Page (page: $page, perPage: $perPage) {
-      media (sort: POPULARITY_DESC, type: ANIME, format:TV) {
+      media (sort: POPULARITY_DESC, type: ANIME) {
         id
         idMal
         averageScore
