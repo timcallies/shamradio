@@ -427,6 +427,23 @@ function reset_animation(name) {
   el.style.animation = null;
 }
 
+function sendPreset(presetOptions, presetId, presetName){
+  socket.emit('savepreset',presetOptions,presetId,presetName,getCookie('userSession'));
+}
+
+function getPreset(presetId){
+  socket.emit('getpreset', presetId, getCookie('userSession'));
+}
+
+socket.on('getpresetresponse', function(options, isOwner){
+  presetResponse(options,isOwner);
+});
+
+socket.emit('presetrequest', getCookie('userSession'));
+socket.on('presetresponse',function(presets) {
+  updatePresets(presets);
+});
+
 /*********************************************
 *                   GUESSES                  *
 *********************************************/

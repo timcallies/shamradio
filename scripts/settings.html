@@ -1,4 +1,17 @@
 <div id="gamesettings" action="" autocomplete="off">
+  <p class="optionheader" style="margin-top:0px;">Preset:</p>
+  <div id = 'save-preset'style="display:inline-flex;">
+    <select style = "height:56px " id="settings-preset">
+      <option value="1">Music (Popular)</option>
+      <option value="2">Music (My Spotify)</option>
+      <option value="3">Anime (My Anilist)</option>
+      <option value="create">Custom...</option>
+    </select>
+    <div id='preset-name' style="display:none;">
+      <input style="width:30%; flex-grow:1;" placeholder="Preset Name" autocomplete="off">
+      <button onclick='savePreset()'>Save</button>
+    </div>
+  </div>
   <p class="optionheader" style="margin-top:0px;">Mode:</p>
   <div id="settings-select-mode" class="settings-horizontal">
     <label id="music-mode" class="radiobuttons">Music<input value="music-mode" type="radio" checked="checked" name="radio"><span class="checkmark"></span></label>

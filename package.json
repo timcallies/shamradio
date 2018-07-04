@@ -7,6 +7,7 @@
     "express": "^4.15.2",
     "isomorphic-fetch": "^2.2.1",
     "last-fm": "^5.2.1",
+    "lodash": "^4.17.10",
     "md5": "^2.2.1",
     "mongodb": "^3.1.0-beta4",
     "mongoose": "^5.1.3",

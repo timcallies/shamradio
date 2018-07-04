@@ -384,7 +384,6 @@ function addShow(data) {
                   if (err) console.log(err);
                   if(colldata==null) {
                     animeTestCollection.insert(song);
-                    opStack.push(song);
                   }
                   else {
                     animeCollection.updateMany({idAlist: song.idAlist},{$set: {averageScore: song.averageScore}});
@@ -409,7 +408,7 @@ function addShow(data) {
 // Define our query variables and values that will be used in the query request
 
 function findOpFromAninx(song) {
-  try{
+  /*try{
     var allNamesDuplicates=[];
     song.alternateNames.forEach(function(oneName){
       if (oneName!=null) allNamesDuplicates.push(oneName);
@@ -459,7 +458,6 @@ function findOpFromAninx(song) {
 
       .then(function (body) {
         if (body==null) return;
-        console.log('yeet');
         var array1 = body.split('<td class="fb-n"><a href="'+url);
 
         var i=0;
@@ -484,7 +482,7 @@ function findOpFromAninx(song) {
         }
       });
     }
-  }catch(err) {}
+  }catch(err) {}*/
 }
 
 
@@ -505,9 +503,5 @@ setInterval(function(){
     getTopShows(anilisti,10)
   else {
     anilisti=0;
-  }
-
-  if(opStack.length>0){
-    findOpFromAninx(opStack.pop());
   }
 },20000);

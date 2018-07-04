@@ -9,6 +9,7 @@ var io = require('socket.io')(http);
 var playlists = require('./playlists.js');
 var MongoClient = require('mongodb').MongoClient;
 var spotify = require('./spotify-import.js');
+var _ = require('lodash');
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
 const baseUrl="https://cryptic-plateau-79955.herokuapp.com";
 var favicon = require('serve-favicon');
@@ -26,6 +27,7 @@ MongoClient.connect(url, function(err, db) {
   var songCollection = dbo.collection("Songlist");
   var animeCollectionTest = dbo.collection("AnimeTest");
   var animeCollection = dbo.collection("Animelist");
+  var presetCollection = dbo.collection('Presets');
   var users = dbo.collection("Users");
   console.log("Database created!");
 
@@ -291,7 +293,7 @@ MongoClient.connect(url, function(err, db) {
       socket.emit('serverresponse', shortServerList());
     });
 
-    socket.on('createserver', function(servername,password,sessionId,userSession,isOnline) {
+    socket.on('createserver', function(servername,password,sessionId,userSession,isOnline,presetId) {
       //Generate a hostid for a local game
       var hostid=servername.hashCode();
 
@@ -310,39 +312,44 @@ MongoClient.connect(url, function(err, db) {
         }
         hostid=servername;
       }
+      else if (servername.length>15 || servername.length<3 ) {
+        socket.emit('errormessage',"Server names must be between 3-15 characters")
+      }
 
-      if(hostid in hostlist) {
+      else if(hostid in hostlist) {
         //If such a server already exists
-        socket.emit('errormessage',"A server with that name already exists!")
+        socket.emit('errormessage',"A server with that name already exists")
       }
 
       else {
         //Creates the server and player variables
         accounts.checkUserSession(userSession).then(function(account){
-          var thisServer = new Host(hostid, servername);
-          hostlist[hostid] = thisServer;
+          presetCollection.findOne({id: presetId}).then(preset => {
+            var thisServer = new Host(hostid, servername, preset);
+            hostlist[hostid] = thisServer;
 
-          var thisPlayer;
-          if(account==null){
-            thisServer.connectedplayers++;
-            thisPlayer = new Player(("Player "+thisServer.connectedplayers),hostid,sessionId);
-          }
-          else {
-            thisServer.connectedplayers++;
-            thisPlayer = new Player(account.username,hostid,sessionId);
-            thisPlayer.userSession=userSession;
-          }
-          playerlist[sessionId]=thisPlayer;
+            var thisPlayer;
+            if(account==null){
+              thisServer.connectedplayers++;
+              thisPlayer = new Player(("Player "+thisServer.connectedplayers),hostid,sessionId);
+            }
+            else {
+              thisServer.connectedplayers++;
+              thisPlayer = new Player(account.username,hostid,sessionId);
+              thisPlayer.userSession=userSession;
+            }
+            playerlist[sessionId]=thisPlayer;
 
-          thisServer.hostPlayer=sessionId;
-          if(isOnline==1) thisServer.playerlist.push(thisPlayer);
-          thisServer.password=password;
-          thisServer.isOnline=isOnline;
-          publicserverlist.push(thisServer);
+            thisServer.hostPlayer=sessionId;
+            if(isOnline==1) thisServer.playerlist.push(thisPlayer);
+            thisServer.password=password;
+            thisServer.isOnline=isOnline;
+            publicserverlist.push(thisServer);
 
-          //playlists.importSpotifyPlaylists(hostlist[hostid]);
-          socket.emit('createserverresponse');
-          io.of('/servers').emit('updateserverlist', shortServerList());
+            //playlists.importSpotifyPlaylists(hostlist[hostid]);
+            socket.emit('createserverresponse');
+            io.of('/servers').emit('updateserverlist', shortServerList());
+          });
         });
       }
     });
@@ -527,13 +534,22 @@ MongoClient.connect(url, function(err, db) {
     socket.on('savesettings', function(sessionId, hostid, options){
       if(hostid in hostlist)
       {
-        if(hostlist[hostid].hostPlayer!=sessionId) return;
-        var host=hostlist[hostid];
-        //If the host chose to allow spotify
-        io.of('/'+hostid).emit('updateSettings',options);
-        hostlist[hostid].options=options;
+        presetCollection.findOne({id: options.presetId}).then(preset => {
+          if(preset == null) hostlist[hostid].preset = {name: "Custom", options: undefined};
+          else if(!(_.isEqual(preset.options, options))) {
+            console.log(preset.options);
+            console.log(options);
+            hostlist[hostid].preset = {name: "Custom", options: undefined};
+          }
+          else hostlist[hostid].preset = preset;
 
-        console.log(options);
+          if(hostlist[hostid].hostPlayer!=sessionId) return;
+          var host=hostlist[hostid];
+          //If the host chose to allow spotify
+          io.of('/'+hostid).emit('updateSettings',options);
+          io.of('/servers').emit('updateserverlist', shortServerList());
+          hostlist[hostid].options=options;
+        });
       }
     });
 
@@ -612,6 +628,97 @@ MongoClient.connect(url, function(err, db) {
       });
     });
 
+    socket.on('presetrequest', function(userSession){
+      accounts.checkUserSession(userSession).then(account => {
+        if (account == null) return;
+        presetCollection.find({owner:account.username}).toArray().then(presets => {
+          socket.emit('presetresponse',presets);
+        });
+      });
+    });
+
+    socket.on('getpreset', function(presetId,userSession){
+      accounts.checkUserSession(userSession).then(account => {
+        presetCollection.findOne({id:presetId}).then(preset => {
+          if (preset==null) return;
+          var isOwner=false;
+          if(account!=null){
+            if(account.username == preset.owner){
+              isOwner = true;
+            }
+          }
+          socket.emit('getpresetresponse', preset.options, isOwner)
+        });
+      })
+
+    });
+
+    socket.on('savepreset', function(presetOptions,presetId,presetName,userSession){
+      if(presetName.length<2 || presetName.length > 20) {
+        socket.emit('errormessage','Enter a valid name for your preset');
+        return;
+      }
+      accounts.checkUserSession(userSession).then(account => {
+        if (account==null) return;
+        if(presetId=='create') {
+          presetCollection.findOne({name:presetName, owner:account.username}).then(checkPreset => {
+            if(checkPreset!=null){
+              socket.emit('errormessage','A preset already exists with that name.');
+              return;
+            }
+
+            createPresetId().then(newId => {
+              presetOptions.presetId=newId;
+              var preset = {
+                name: presetName,
+                id: newId,
+                options: presetOptions,
+                owner: account.username
+              };
+              presetCollection.save(preset);
+              presetCollection.find({owner:account.username}).toArray().then(presets => {
+                socket.emit('presetresponse',presets);
+                socket.emit('consolemessage','Preset saved');
+              });
+            });
+          });
+        }
+        else{
+          presetCollection.findOne({id:presetId, owner:account.username}).then(preset => {
+            if (preset==null) return;
+            preset.options = presetOptions;
+            preset.name = presetName;
+            presetCollection.save(preset);
+            presetCollection.find({owner:account.username}).toArray().then(presets => {
+              socket.emit('presetresponse',presets);
+              socket.emit('consolemessage','Preset saved');
+            });
+          });
+        }
+
+        function createPresetId(){
+          return new Promise(resolve => {
+            var newId = '';
+            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (var i = 0; i < 15; i++)
+              newId += possible.charAt(Math.floor(Math.random() * possible.length));
+
+            //Checks if the id exists
+            presetCollection.findOne({id:newId}).then(preset => {
+              if (preset == null) {
+                resolve(newId);
+              }
+              else{
+                createPresetId().then(newerId => {
+                  resolve(newerId);
+                });
+              }
+            });
+          });
+        }
+      });
+    });
+
     //Sends a response to the server
     socket.on('guess', function(guess,sessionId,hostid) {
       //Check is the player's guess is in the array
@@ -683,7 +790,7 @@ MongoClient.connect(url, function(err, db) {
   }
 
   //Defines the host of a game
-  function Host(hostid,serverName){
+  function Host(hostid, serverName, thisPreset){
     this.password=undefined;
     this.isOnline=0;
     this.hostid=hostid;
@@ -707,26 +814,10 @@ MongoClient.connect(url, function(err, db) {
     this.query=[];
     this.hasPlaylist=this.playlist.length;
 
-    this.options={
-      mode:"music-mode",
-      matchBy:"title",
-      songs: 10,
-      length: 20,
-      importFromSpotify: true,
-      importFromAnilist: true,
-      difficultyMin: 50,
-      difficultyMax: 100,
-      scoreMin: 50,
-      scoreMax: 100,
-      avgScoreMin: 50,
-      avgScoreMax: 100,
-      ageMin: 1900,
-      ageMax: 2018,
-      oped: 'openings',
-      tags: lastfm.getTags(),
-      importMode: "balanced",
-      customQuery: undefined
-    };
+    this.preset = thisPreset;
+
+    this.options=thisPreset.options;
+
     var thisHost = io.of('/'+hostid);
     thisHost.on('connection', function(socket){
       console.log('someone connected to ' +hostid);
@@ -740,7 +831,8 @@ MongoClient.connect(url, function(err, db) {
         serverinfo.push({
           hostid: server.hostid,
           name: server.name,
-          size: server.playerlist.length
+          size: server.playerlist.length,
+          preset: server.preset.name
         });
       }
     });

@@ -30,6 +30,11 @@
           <input id="servername" placeholder="Server Name" autocomplete="off" autocapitalize="off" style="flex-grow: 2;">
           <div style="display:flex; flex-grow:1;">
             <input id="password" placeholder="Password (Optional)" autocomplete="off" autocapitalize="off" style="flex-grow: 1; width: 50%">
+            <select id='preset'>
+              <option value="1">Music (Popular)</option>
+              <option value="2">Music (My Spotify)</option>
+              <option value="3">Anime (My Anilist)</option>
+            </select>
             <button onclick="createServer()">Create</button>
           </div>
         </div>

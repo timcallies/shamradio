@@ -45,6 +45,17 @@ function settingsContainer(container) {
       updateImport();
     });
 
+    $("#settings-preset").change(function() {
+      if($(this).val()=='create'){
+        $('#preset-name').css('display','inline-flex');
+      }
+      else {
+        $('#preset-name').css('display','none');
+        getPreset($(this).val());
+      }
+    });
+
+
     $(".option-tab").append($("<div class='expand'>").text('^'));
     $(".option-tab").click(function() {
       var x = document.getElementById($(this).attr('id')+'-group');
@@ -198,8 +209,7 @@ function settingsContainer(container) {
   });
 }
 
-
-function finalizeSettings() {
+function getSettings(){
   var thisMatchBy;
   var tagArray = [];
   if ($('input[name=radio]:checked').val() == 'music-mode')
@@ -234,8 +244,14 @@ function finalizeSettings() {
     ageMax:$( "#age-range" ).slider( "values", 1 ),
     tags: tagArray,
     importMode:$('input[name=radio-import]:checked').val(),
+    presetId: $('#settings-preset').val(),
     customQuery: getQuery()
   };
+  return options;
+}
+
+function finalizeSettings() {
+  var options = getSettings();
   saveSettings(options);
   console.log(getQuery());
 }
@@ -355,7 +371,10 @@ function getQuery() {
 
   var query = getQueryFromGroup(($('#advanced-option-group > div:first-child')),0).slice(0,-2);
   console.log(query);
-  return JSON.parse('{"$match": '+query+'}');
+  try{
+    return JSON.parse('{"$match": '+query+'}');
+  } catch(err) {return undefined;}
+
 }
 
 function getQueryFromGroup(object,t) {
@@ -403,11 +422,46 @@ function getQueryFromItem(object,t){
   return '\n';
 }
 
+/***********************************
+*             PRESETS              *
+***********************************/
+function savePreset(){
+  var presetOptions = getSettings();
+  var presetId = $('#settings-preset').val();
+  var presetName = $('#preset-name > input').val();
+  sendPreset(presetOptions, presetId, presetName);
+}
+
+function presetResponse(options, isOwner){
+  refreshSettings(options);
+  if(isOwner){
+    $('#preset-name').css('display','inline-flex');
+  }
+  else {
+    $('#preset-name').css('display','none');
+  }
+}
+
+function updatePresets(presets){
+  $('#settings-preset').empty();
+  $('#settings-preset').append('<option value="1">Music (Popular)</option>');
+  $('#settings-preset').append('<option value="2">Music (Spotify)</option>');
+  $('#settings-preset').append('<option value="3">Anime (Anilist)</option>');
+  presets.forEach(preset => {
+    var thisPreset =  $('<option value="'+preset.id+'">').text(preset.name);
+    $('#settings-preset').append(thisPreset);
+  });
+  $('#settings-preset').append('<option value="create">Custom...</option>');
+}
+
 function refreshSettings(hostsettings) {
   $('#settings-select-mode').find('input[value="'+hostsettings.mode+'"]').prop("checked", true);
-
-  $('#settings-guess-music').val(hostsettings.matchBy);
-  $('#settings-guess-anime').val(hostsettings.matchBy);
+  $('#settings-preset').val(hostsettings.presetId);
+  $('#preset-name > input').val($('#settings-preset option:selected').text());
+  if(hostsettings.mode == 'music-mode')
+    $('#settings-guess-music').val(hostsettings.matchBy);
+  if(hostsettings.mode == 'anime-mode')
+    $('#settings-guess-anime').val(hostsettings.matchBy);
   $('#settings-import-spotify').prop("checked", hostsettings.importFromSpotify);
   $('#settings-import-anilist').prop("checked", hostsettings.importFromAnilist);
   $('#settings-import-mode').find('input[value="'+hostsettings.importMode+'"]').prop("checked", true);
@@ -452,6 +506,10 @@ function refreshSettings(hostsettings) {
         addGroup(group[query],'$or',$('#advanced-option-group'))
       }
     }
+  }
+  else{
+    $('#advanced-option-group').empty();
+    $('#advanced-option-group').append(filterPlus.clone());
   }
 
   console.log(hostsettings);
@@ -510,7 +568,6 @@ function refreshSettings(hostsettings) {
         else if(hostsettings.mode=='anime-mode'){
           itemObject.find('.anime-settings').val(key);
         }
-
       }
     });
     if(groupobject.children('.filter, .filterGroup').length < 5)

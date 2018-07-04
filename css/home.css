@@ -55,6 +55,11 @@ li{
   width:30%;
   flex-grow: 1;
 }
+
+.server-preset{
+  font-size: 12px;
+}
+
 .server-input{
   width:30%;
   font-size: large;

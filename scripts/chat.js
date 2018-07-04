@@ -4,7 +4,6 @@ var chatheight = 0;
 
 
 
-
 function chatContainer(container,socket,hostsocket) {
   document.getElementById(container).innerHTML=
   '<ul id="chat-messages"></ul>'+

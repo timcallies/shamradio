@@ -60,7 +60,7 @@ socket.on('serverresponse', function(serverlist){
 
 function createServer() {
   //Sends a request to create a server
-  socket.emit('createserver', $('#servername').val(), $('#password').val(),getCookie('sessionId'),getCookie('userSession'),1);
+  socket.emit('createserver', $('#servername').val(), $('#password').val(),getCookie('sessionId'),getCookie('userSession'),1,$('#preset').val());
 }
 
 function updateServers(serverlist) {
@@ -69,6 +69,7 @@ function updateServers(serverlist) {
   serverlist.forEach(function(thisServer){
     $('#server-list').append($('<li id="server-'+thisServer.hostid+'" class="serverItem">'));
     $('#server-'+thisServer.hostid).append($('<li class = "server-name" id="server-name-'+thisServer.hostid+'">').text(thisServer.name));
+      $('#server-'+thisServer.hostid).append($('<li class = "server-preset" id="server-preset-'+thisServer.hostid+'">').text(thisServer.preset));
     $('#server-'+thisServer.hostid).append($('<li class="server-members" id="server-members-'+thisServer.hostid+'">').text(thisServer.size+"/8"));
     $('#server-'+thisServer.hostid).append($('<input class="server-input" id="server-input-'+thisServer.hostid+'" placeholder="Password">'));
     $('#server-'+thisServer.hostid).append($('<button class="server-button" id="server-button-'+thisServer.hostid+'" onclick="joinServer(\''+thisServer.hostid+'\')">').text("Join"));
@@ -79,6 +80,18 @@ function joinServer(hostid) {
   console.log(hostid);
   socket.emit('joinserverrequest',getCookie('sessionId'),getCookie('userSession'),hostid,$('#server-input-'+hostid).val());
 }
+
+socket.emit('presetrequest', getCookie('userSession'));
+socket.on('presetresponse',function(presets) {
+  $('#preset').empty();
+  $('#preset').append('<option value="1">Music (Popular)</option>');
+  $('#preset').append('<option value="2">Music (Spotify)</option>');
+  $('#preset').append('<option value="3">Anime (Anilist)</option>');
+  presets.forEach(preset => {
+    var thisPreset =  $('<option value="'+preset.id+'">').text(preset.name);
+    $('#preset').append(thisPreset);
+  });
+});
 
 function getCookie(cname) {
   //Stolen from w3schools
