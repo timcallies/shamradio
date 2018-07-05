@@ -11,7 +11,7 @@ var MongoClient = require('mongodb').MongoClient;
 var spotify = require('./spotify-import.js');
 var _ = require('lodash');
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
-const baseUrl="https://cryptic-plateau-79955.herokuapp.com";
+const baseUrl="https://hatradio.herokuapp.com";
 var favicon = require('serve-favicon');
 
 app.use(cookieParser());
