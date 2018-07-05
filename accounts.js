@@ -35,7 +35,7 @@ function register(thisUsername,thisPassword) {
       else if (colldata!= null) resolve(null);
       //Create a new account
       else {
-        bcrypt.genSalt(saltRounds, function(err, salt) {
+        bcrypt.genSalt(10, function(err, salt) {
           if(err) reject(err);
           bcrypt.hash(thisPassword, salt, function(err, hash) {
             if(err) reject(err);
