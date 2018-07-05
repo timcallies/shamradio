@@ -27,7 +27,8 @@ const genres = [
   'death metal',
   'Soundtrack',
   'other',
-  'blues'
+  'blues',
+  'country'
 ];
 
 module.exports = {

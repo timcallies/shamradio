@@ -23,7 +23,7 @@ setTimeout(function(){
 
     if(originalName!=undefined) {
       console.log(originalName);
-      song.alternateNames.push(originalName);
+      song.alternateTitles.push(originalName);
       songlist.save(song);
       var query = {
         name: {$regex: originalName, $options: 'i' },
@@ -39,7 +39,7 @@ setTimeout(function(){
           if(dupedata.length==1) return;
           console.log(song.name,dupedata);
           dupedata.forEach(function(thisSong){
-            thisSong.alternateNames.push(song.name);
+            thisSong.alternateTitles.push(song.name);
             thisSong.alternateAlbums.push(song.album);
             thisSong.alternateIds.push(song.songid);
             songlist.save(thisSong);
@@ -55,7 +55,7 @@ setTimeout(function(){
 
 setTimeout(function(){
   songlist.find().forEach(function(song){
-    song.alternateNames=[];
+    song.alternateTitles=[];
     song.alternateAlbums=[];
     song.alternateIds=[];
     songlist.save(song);

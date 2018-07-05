@@ -21,6 +21,7 @@ var currentRound;
 var videoContainer = new videoPlayer('video-player-container');
 var name;
 var servername;
+var isLocalGame = false;
 
 var hostid = undefined;
 
@@ -30,7 +31,7 @@ setInterval(function() {
 
 socket.emit('playerstatusrequest',getCookie('sessionId'));
 
-socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOnline,hostplayerlist,gameStatus,options,hasPlaylist,serverName) {
+socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOnline,hostplayerlist,gameStatus,options,hasPlaylist,serverName,password) {
   hostid=hostidresponse;
   name=playername;
   servername = serverName;
@@ -43,6 +44,13 @@ socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOn
   }
   else {
     document.getElementById('setup').setAttribute("style", "display: none;");
+  }
+
+  if(password != '' && password != undefined) {
+    $('#hosturl').text(window.location.href+"/"+hostid+'?p='+password);
+  }
+  else {
+    $('#hosturl').text(window.location.href+"/"+hostid);
   }
 
   if(isOnline) {
@@ -68,12 +76,11 @@ socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOn
   else {
     //Setup the server settings
     document.getElementById('hostsetup').setAttribute("style", "display: block;");
-    document.getElementById('chat-container').setAttribute("style", "display: none;");
     document.getElementById("hostinfo").innerHTML = (hostid);
     document.getElementById("hostQR").innerHTML = (
       "<img src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="
-      + encodeURIComponent(window.location.href.split("host")[0]
-      + "play?id="+hostid)+"' onload='fadeIn(this)' style='display:none;' />"
+      + encodeURIComponent(window.location.href
+      + "/"+hostid)+"' onload='fadeIn(this)' style='display:none;' />"
     );
   }
   connectToHost(hostid);
@@ -98,6 +105,22 @@ function updatePlayerList(hostplayerlist) {
   if(hostplayerlist.length>0)
   {
     document.getElementById('begingame').disabled = false;
+  }
+
+  else if(hostplayerlist.length>9){
+    $('#users').css('transform','scale(1)');
+    $('#users').css('width','100%');
+    $('#users').css('height','100%');
+  }
+
+  else if(hostplayerlist.length>17){
+    $('#users').css('transform','scale(.5)');
+    $('#users').css('width','200%');
+    $('#users').css('height','200%');
+  }
+
+  else {
+
   }
 
   hostplayerlist.sort(function(a, b) {
@@ -237,7 +260,7 @@ function connectToHost(hostid) {
     document.getElementById('round-text').innerHTML=("Round "+round);
     document.getElementById('round-container').setAttribute("style", "display: block;");
     //document.getElementById('round-container').setAttribute("style", "display: none;");
-    videoContainer = new videoPlayer('video-player-container');
+
     updatePlayerList(hostplayerlist);
     currentRound=round;
     videoContainer.play(name, album, artist, coverArt, url, type);
@@ -350,7 +373,7 @@ function rescalePage() {
     {
       mobilePage=true;
       $("#sidebar").css("width", "0px");
-      $("#chat-container").addClass('chat-container-mobile');
+      $("#chat-container").addClass('chat-container-mobile').removeClass('chat-container');
       $('#settings-window').addClass('window-mobile').removeClass('window');
       $('#user-container').addClass('user-container-mobile');
       $('#user-container').css('display',("none"));
@@ -374,7 +397,7 @@ function rescalePage() {
         mobilePage = false;
         $("#sidebar").css("width", "350px");
         $(".content").css("height", "100%");
-        $("#chat-container").removeClass('chat-container-mobile');
+        $("#chat-container").addClass('chat-container').removeClass('chat-container-mobile');
         $('#settings-window').addClass('window').removeClass('window-mobile');
         $('#user-container').removeClass('user-container-mobile');
         $('#input-screen-container').removeClass('input-container-mobile');

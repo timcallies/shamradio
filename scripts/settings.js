@@ -18,7 +18,8 @@ const genres = [
   'death metal',
   'Soundtrack',
   'other',
-  'blues'
+  'blues',
+  'country'
 ];
 var canImport = false;
 
@@ -318,7 +319,7 @@ function refreshButtons() {
       $(this).parent().parent().remove();
     }
 
-    if($(this).parent().parent().children('.filter, .filterGroup').length == 5){
+    if($(this).parent().parent().children('.filter, .filterGroup').length == 10){
       $(this).parent().parent().append(filterPlus.clone());
       refreshButtons();
     }
@@ -336,14 +337,18 @@ function refreshButtons() {
     $(this).parent().remove();
 
     if(text=='+'){
-      group.append(filterElement.clone());
+      if($('.filter').length<21) {
+        group.append(filterElement.clone());
+      }
     }
 
     else {
-      var newgroup=filterGroup.clone();
-      group.append(newgroup);
-      if(group.css('background-color') == 'rgb(228, 228, 228)') {
-        newgroup.css('background-color','#d0d0d0');
+      if($('.filter-group').length<6) {
+        var newgroup=filterGroup.clone();
+        group.append(newgroup);
+        if(group.css('background-color') == 'rgb(228, 228, 228)') {
+          newgroup.css('background-color','#d0d0d0');
+        }
       }
     }
 
@@ -494,7 +499,7 @@ function refreshSettings(hostsettings) {
   $( "#avg-score-text" ).val(($( "#avg-score-range" ).slider( "values", 0 ) +
     " - " + $( "#avg-score-range" ).slider( "values", 1 ) ));
 
-  if (hostsettings.customQuery!=undefined) {
+  if (hostsettings.customQuery != undefined) {
     $('#advanced-option-group').empty();
     var group = hostsettings.customQuery.$match;
     for (query in group) {
@@ -509,7 +514,7 @@ function refreshSettings(hostsettings) {
   }
   else{
     $('#advanced-option-group').empty();
-    $('#advanced-option-group').append(filterPlus.clone());
+    $('#advanced-option-group').append("    <button id='rule-button' onclick='createRules()'>Create Rules</button>");
   }
 
   console.log(hostsettings);
@@ -570,7 +575,7 @@ function refreshSettings(hostsettings) {
         }
       }
     });
-    if(groupobject.children('.filter, .filterGroup').length < 5)
+    if(groupobject.children('.filter, .filterGroup').length < 10)
       groupobject.append(filterPlus.clone());
   }
   checkMode();

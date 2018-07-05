@@ -7,7 +7,7 @@ inputScreen();
 
 socket.emit('playerstatusrequest',getCookie('sessionId'));
 
-socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOnline,hostplayerlist,gameStatus,options,hasPlaylist,serverName) {
+socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOnline,hostplayerlist,gameStatus,options,hasPlaylist,serverName,password) {
   hostid=hostidresponse;
   name=playername;
   document.getElementById('spotify-button').disabled=(hasPlaylist>0);
@@ -18,8 +18,8 @@ socket.on('playerstatusresponse', function(hostidresponse,playername,isHost,isOn
   connectToHost(hostid);
 });
 
-socket.on('possibleresults', function(tags) {
-  updateGuessChoices(tags);
+socket.on('possibleresults', function(tags,query) {
+  updateGuessChoices(tags,query);
 });
 
 function changeName() {

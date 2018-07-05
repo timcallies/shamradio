@@ -21,7 +21,7 @@ function playOnline() {
 }
 
 function hostLocal() {
-  socket.emit('createserver', 'local', '', getCookie('sessionId'), getCookie('userSession'), 0);
+  socket.emit('createserver', 'local', '', getCookie('sessionId'), getCookie('userSession'), 0,'1');
 }
 
 function playLocal() {
@@ -70,8 +70,8 @@ function updateServers(serverlist) {
     $('#server-list').append($('<li id="server-'+thisServer.hostid+'" class="serverItem">'));
     $('#server-'+thisServer.hostid).append($('<li class = "server-name" id="server-name-'+thisServer.hostid+'">').text(thisServer.name));
       $('#server-'+thisServer.hostid).append($('<li class = "server-preset" id="server-preset-'+thisServer.hostid+'">').text(thisServer.preset));
-    $('#server-'+thisServer.hostid).append($('<li class="server-members" id="server-members-'+thisServer.hostid+'">').text(thisServer.size+"/8"));
-    $('#server-'+thisServer.hostid).append($('<input class="server-input" id="server-input-'+thisServer.hostid+'" placeholder="Password">'));
+    $('#server-'+thisServer.hostid).append($('<li class="server-members" id="server-members-'+thisServer.hostid+'">').text(thisServer.size+"/32"));
+    $('#server-'+thisServer.hostid).append($('<input class="server-input" id="server-input-'+thisServer.hostid+'" placeholder="Password">').prop('disabled', thisServer.noPassword));
     $('#server-'+thisServer.hostid).append($('<button class="server-button" id="server-button-'+thisServer.hostid+'" onclick="joinServer(\''+thisServer.hostid+'\')">').text("Join"));
   });
 }
@@ -87,7 +87,7 @@ socket.on('presetresponse',function(presets) {
   $('#preset').append('<option value="1">Music (Popular)</option>');
   $('#preset').append('<option value="2">Music (Spotify)</option>');
   $('#preset').append('<option value="3">Anime (Anilist)</option>');
-  presets.forEach(preset => {
+  presets.forEach(function(preset) {
     var thisPreset =  $('<option value="'+preset.id+'">').text(preset.name);
     $('#preset').append(thisPreset);
   });

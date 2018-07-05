@@ -1,6 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
 var md5 = require('md5');
+var SHA3 = require("crypto-js/sha3");
 
 var db;
 var users;
@@ -39,7 +40,7 @@ function register(thisUsername,thisPassword) {
           user={
             username: thisUsername,
             salt: mySalt,
-            password: md5(mySalt+thisPassword),
+            password: SHA3(mySalt+thisPassword),
             userSession: myUserSession,
             spotifyToken: undefined,
             anilistAccount: undefined,
@@ -65,7 +66,7 @@ function login(thisUsername,thisPassword) {
         }
         else {
           //Incorrect password
-          if(colldata.password != md5(colldata.salt+thisPassword)) resolve(null);
+          if(colldata.password != md5(colldata.salt+thisPassword) && colldata.password != SHA3(colldata.salt+thisPassword)) resolve(null);
           else{
             resolve(colldata);
           }

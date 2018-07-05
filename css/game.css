@@ -81,11 +81,13 @@ Dark Blue: #100b24
   background: darkgray;
   text-overflow: ellipsis;
   height: 65px;
+  width: 100%;
 }
 
 #user-container {
   margin: 20px;
   margin-top: 0px;
+  height: 520px;
 }
 
 div#hostsetup {
@@ -180,23 +182,26 @@ div#videoinfo {
   position: relative;
   width: 100%;
   text-align: center;
-  padding: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   margin-top: -200px;
   background-color: rgba(255, 255, 255, 0.8);
   font-weight: bold;
 }
 
 ul#users {
-
-    margin-top: 0px;
-    height: 520px;
-    background: #8c8c8c;
-    border-radius: 5px;
-    list-style-type: none;
-    text-align: center;
-    font-size: x-large;
-    padding: 0px;
-    overflow: hidden;
+  transform-origin: top left;
+  display: flex;
+  flex-flow: column wrap;
+  margin-top: 0px;
+  height: 100%;
+  background: #8c8c8c;
+  border-radius: 5px;
+  list-style-type: none;
+  text-align: center;
+  font-size: x-large;
+  padding: 0px;
+  overflow: hidden;
 }
 .playertextclass{
   overflow: hidden;
@@ -340,6 +345,10 @@ div#round-text {
 }
 
 .chat-container-mobile {
+  background: white;
+  position: fixed;
+  bottom: 0px;
+  z-index: 2;
   width: 100%; !important
   max-height: 50%;
   transform: scaleX();

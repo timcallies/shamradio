@@ -22,7 +22,8 @@ var lastfm = require('./lastfm-import.js');
 module.exports = {
     addUser: addUser,
     addSongFromSpotify: addSongFromSpotify,
-    updateUser: updateUser
+    updateUser: updateUser,
+    getTopPlaylists: getTopPlaylists
 };
 
 // Retrieve an access token
@@ -30,6 +31,7 @@ spotifyApi.clientCredentialsGrant().then(
   function(data) {
     console.log('The access token expires in ' + data.body['expires_in']);
     console.log('The access token is ' + data.body['access_token']);
+
 
     setInterval(function() {
       spotifyApi.refreshAccessToken().then(
@@ -43,6 +45,7 @@ spotifyApi.clientCredentialsGrant().then(
 
     // Save the access token so that it's used in future calls
     spotifyApi.setAccessToken(data.body['access_token']);
+    //getTopPlaylists();
   },
   function(err) {
     console.log(
@@ -184,7 +187,6 @@ function getTopTracks(thisUsername, offset) {
       }
       playerlist[sessionId].personalPlaylist.push("spfy#"+track.id);
     });
-    console.log(playerlist[sessionId].personalPlaylist.length);
     if(offset<200 && data.body.items.length==20) {
       setTimeout(function(){getTopTracks(offset+20)},100);
     }
@@ -223,33 +225,35 @@ function addSongFromSpotify(song) {
   }
 }
 
-function findDuplicateSongs(song) {
-  var query = {name: {$regex: song.name, $options: 'i' }, artist: song.artist};
-  songCollection.find(query).toArray(function(data){
-    if(data==undefined) return;
-    var theseAlternateTitles = [];
-    var theseAlternateAlbums = [];
-    var theseAlternateIds = [];
-    data.forEach(function(thisSong){
-      theseAlternateTitles.push(thisSong.name);
-      theseAlternateAlbums.push(thisSong.album);
-      theseAlternateIds.push(thisSong.songid);
+function getTopPlaylists() {
+  spotifyApi.getFeaturedPlaylists({limit: 50, offset: 0}).then(data => {
+    data.body.playlists.items.forEach(playlist => {
+      spotifyPlaylistStack.push([playlist.id,0]);
+    });
+  });
+}
+
+function addSongsFromPlaylist(id, offset) {
+  spotifyApi.getPlaylistTracks('spotify',id,{limit: 25, offset: offset}).then(data => {
+    if (data==undefined) return;
+    if (data.body.items==undefined) return;
+    data.body.items.forEach(function(track){
+      //Checks if the song is in the collection
+      songCollection.findOne({songid: ("spfy#"+track.track.id)}).then(function(colldata, err){
+        if (err) console.log(err);
+        if(colldata==null) {
+          songImportStack.push(track.track);
+        }
+      });
     });
 
-    var newvalues = {$set: {
-      alternateTitles: theseAlternateTitles,
-      alternateAlbums: theseAlternateAlbums,
-      alternateIds: theseAlternateIds,
-    }};
-
-    songCollection.updateMany(query, newvalues, function(err, res) {
-      if (err) throw err;
-      console.log(res.result.nModified + " document(s) updated");
-    })
+    if(data.body.items.length==25)
+      spotifyPlaylistStack.push([id,offset+25]);
   });
 }
 
 var spotifyImportStack = [];
+var spotifyPlaylistStack = [];
 var songImportStack = [];
 
 //Imports from Spotify
@@ -257,6 +261,10 @@ setInterval(function(){
   if(spotifyImportStack.length>0){
     var thisPerson = spotifyImportStack.pop();
     getSavedTracks(thisPerson[0],thisPerson[1]);
+  }
+  if(spotifyPlaylistStack.length>0){
+    var thisPlaylist = spotifyPlaylistStack.pop();
+    addSongsFromPlaylist(thisPlaylist[0],thisPlaylist[1]);
   }
 },1000);
 

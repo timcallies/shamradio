@@ -88,6 +88,59 @@ MongoClient.connect(url, function(err, db) {
     } catch (err) {console.log(err);}
   });
 
+  //Connects a player if they use the URL to play
+  app.get('/game/:hostid', function(req, res) {
+    var sessionId = createSessionID(req, res);
+    if(!(req.params.hostid in hostlist)) {
+      res.redirect('/');
+      return;
+    }
+
+    else if(hostlist[req.params.hostid].playerlist.length > 32) {
+      res.redirect('/');
+      return;
+    }
+
+    else if(hostlist[req.params.hostid].password!='' && hostlist[req.params.hostid].password!=undefined) {
+      if(req.query==undefined) {
+        res.redirect('/');
+        return;
+      }
+      else if(req.query.p != hostlist[req.params.hostid].password) {
+        res.redirect('/');
+        return;
+      }
+    }
+
+    var hostid = req.params.hostid;
+    var userSession = req.cookies.userSession;
+
+
+    accounts.checkUserSession(userSession).then(function(account){
+      var thisServer = hostlist[hostid];
+
+      var thisPlayer;
+      if(account==null){
+        thisServer.connectedplayers++;
+        thisPlayer = new Player(("Player "+thisServer.connectedplayers),hostid,sessionId);
+      }
+      else {
+        thisServer.connectedplayers++;
+        thisPlayer = new Player(account.username,hostid,sessionId);
+        thisPlayer.userSession=userSession;
+      }
+
+      playerlist[sessionId]=thisPlayer;
+
+      thisServer.playerlist.push(thisPlayer);
+
+      io.of('/'+hostid).emit('consolemessage', (thisPlayer.username+ " joined the game."));
+      io.of('/'+hostid).emit('sendPlayerList',getPlayerList(hostid));
+      io.of('/servers').emit('updateserverlist', shortServerList());
+      res.redirect('/game');
+    });
+  });
+
   app.get('/login', function(req,res){
     if(req.cookies.userSession==null){
       res.sendFile(__dirname + '/html/login.html');
@@ -141,6 +194,7 @@ MongoClient.connect(url, function(err, db) {
     for (var i = 0; i < 10; i++)
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     res.cookie('sessionId',text);
+    return text;
   }
 
   //Returns true if the sessionID exists, false otherwise
@@ -193,7 +247,8 @@ MongoClient.connect(url, function(err, db) {
         thisHost.gameStatus,
         thisHost.options,
         thisPlayer.personalPlaylist.length,
-        thisHost.name
+        thisHost.name,
+        thisHost.password
       );
     });
 
@@ -312,7 +367,8 @@ MongoClient.connect(url, function(err, db) {
         }
         hostid=servername;
       }
-      else if (servername.length>15 || servername.length<3 ) {
+
+      if (servername.length>15 || servername.length<3 ) {
         socket.emit('errormessage',"Server names must be between 3-15 characters")
       }
 
@@ -591,7 +647,7 @@ MongoClient.connect(url, function(err, db) {
         socket.emit('errormessage',"The password is incorrect.");
         return;
       }
-      if(hostlist[hostid].playerlist.length>=8) {
+      if(hostlist[hostid].playerlist.length>=32) {
         socket.emit('errormessage',"That server is full.");
         return;
       }
@@ -613,13 +669,6 @@ MongoClient.connect(url, function(err, db) {
         playerlist[sessionId]=thisPlayer;
 
         thisServer.playerlist.push(thisPlayer);
-
-        if(hostlist[hostid].options.importFromSpotify){
-          //playlists.importSpotifyPlaylist(thisPlayer);
-        }
-        if(hostlist[hostid].options.importFromAnilist){
-          //playlists.importAnilistPlaylist(thisPlayer,hostlist[hostid]);
-        }
 
         socket.emit('joinserverresponse');
         io.of('/'+hostid).emit('consolemessage', (thisPlayer.username+ " joined the game."));
@@ -832,6 +881,7 @@ MongoClient.connect(url, function(err, db) {
           hostid: server.hostid,
           name: server.name,
           size: server.playerlist.length,
+          noPassword: (server.password=='' || server.password==undefined),
           preset: server.preset.name
         });
       }

@@ -4,6 +4,7 @@
   "description": "A remote that can communicate between a client and a smartphone",
   "dependencies": {
     "cookie-parser": "^1.4.3",
+    "crypto-js": "^3.1.9-1",
     "express": "^4.15.2",
     "isomorphic-fetch": "^2.2.1",
     "last-fm": "^5.2.1",
@@ -14,6 +15,7 @@
     "mongoose-in-memory-autocomplete": "^1.2.3",
     "mysql": "^2.15.0",
     "serve-favicon": "^2.5.0",
+    "sha3": "^1.2.2",
     "socket.io": "^2.1.1",
     "spotify-web-api-node": "^3.1.1",
     "superagent": "^3.8.3"
