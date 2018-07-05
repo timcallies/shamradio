@@ -36,22 +36,24 @@ function register(thisUsername,thisPassword) {
       //Create a new account
       else {
         bcrypt.genSalt(saltRounds, function(err, salt) {
-            bcrypt.hash(thisPassword, salt, function(err, hash) {
-              findNewUserSession().then(function(myUserSession){
-                user={
-                  username: thisUsername,
-                  salt: salt,
-                  password: hash,
-                  userSession: myUserSession,
-                  spotifyToken: undefined,
-                  anilistAccount: undefined,
-                  spotifyPlaylist: [],
-                  anilistPlaylist: []
-                }
-                users.insert(user);
-                resolve(user);
-              });
+          if(err) reject(err);
+          bcrypt.hash(thisPassword, salt, function(err, hash) {
+            if(err) reject(err);
+            findNewUserSession().then(function(myUserSession){
+              user={
+                username: thisUsername,
+                salt: salt,
+                password: hash,
+                userSession: myUserSession,
+                spotifyToken: undefined,
+                anilistAccount: undefined,
+                spotifyPlaylist: [],
+                anilistPlaylist: []
+              }
+              users.insert(user);
+              resolve(user);
             });
+          });
         });
       }
     });
