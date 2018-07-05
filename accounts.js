@@ -1,7 +1,7 @@
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
 var md5 = require('md5');
-var SHA3 = require("crypto-js/sha3");
+var bcrypt = require('bcrypt');
 
 var db;
 var users;
@@ -35,20 +35,23 @@ function register(thisUsername,thisPassword) {
       else if (colldata!= null) resolve(null);
       //Create a new account
       else {
-        var mySalt=generateRandom(4);
-        findNewUserSession().then(function(myUserSession){
-          user={
-            username: thisUsername,
-            salt: mySalt,
-            password: SHA3(mySalt+thisPassword),
-            userSession: myUserSession,
-            spotifyToken: undefined,
-            anilistAccount: undefined,
-            spotifyPlaylist: [],
-            anilistPlaylist: []
-          }
-          users.insert(user);
-          resolve(user);
+        bcrypt.genSalt(saltRounds, function(err, salt) {
+            bcrypt.hash(thisPassword, salt, function(err, hash) {
+              findNewUserSession().then(function(myUserSession){
+                user={
+                  username: thisUsername,
+                  salt: salt,
+                  password: hash,
+                  userSession: myUserSession,
+                  spotifyToken: undefined,
+                  anilistAccount: undefined,
+                  spotifyPlaylist: [],
+                  anilistPlaylist: []
+                }
+                users.insert(user);
+                resolve(user);
+              });
+            });
         });
       }
     });
@@ -66,10 +69,12 @@ function login(thisUsername,thisPassword) {
         }
         else {
           //Incorrect password
-          if(colldata.password != md5(colldata.salt+thisPassword) && colldata.password != SHA3(colldata.salt+thisPassword)) resolve(null);
-          else{
-            resolve(colldata);
-          }
+          bcrypt.compare(thisPassword, colldata.password, function(err, res) {
+            if(colldata.password != md5(colldata.salt+thisPassword) && !res) resolve(null);
+            else{
+              resolve(colldata);
+            }
+          });
         }
       }
     });
