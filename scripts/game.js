@@ -92,6 +92,9 @@ function changeName() {
 
 socket.on('errormessage', function(msg){
   errorMessage(msg);
+  if(msg=="Couldn't find enough songs to fit the settings."){
+    document.getElementById('begingame').disabled = false;
+  }
 });
 
 //Closes the host and begins the game
@@ -463,8 +466,8 @@ socket.on('getpresetresponse', function(options, isOwner){
 });
 
 socket.emit('presetrequest', getCookie('userSession'));
-socket.on('presetresponse',function(presets) {
-  updatePresets(presets);
+socket.on('presetresponse',function(presets,thisName) {
+  presetSaved(presets,thisName);
 });
 
 /*********************************************

@@ -23,7 +23,6 @@ module.exports = {
     addShow: addShow,
     getTopShows: getTopShows,
     getAnilist: getAnilist,
-    findOpFromAninx: findOpFromAninx,
     updateShow: updateShow
 };
 
@@ -215,6 +214,14 @@ function getTopShows(page_count, per_page) {
         startDate{
           year
         }
+        genres
+        studios(isMain: true) {
+          edges {
+            node {
+              name
+            }
+          }
+        }
       }
     }
   }`;
@@ -266,6 +273,14 @@ function updateShow(show) {
       id
       popularity
       averageScore
+      genres
+      studios(isMain: true) {
+        edges {
+          node {
+            name
+          }
+        }
+      }
     }
   }`;
 
@@ -300,6 +315,8 @@ function updateShow(show) {
   function handleData(data) {
     show.popularity = (1-(1-(data.data.Media.popularity*1.0)/mostPopular)**5)*100;
     show.averageScore = data.data.Media.averageScore;
+    show.tags = data.data.Media.genres;
+    show.studio = data.data.Media.studios.edges[0].node.name;
     //console.log(show.series, show.popularity);
     animeCollection.save(show);
   }
@@ -363,6 +380,8 @@ function addShow(data) {
                 alternateNames: alltitles,
                 averageScore: data.averageScore,
                 ending:(oped=='ed'),
+                tags: data.genres,
+                studio: data.studios.edges[0].node.name,
                 wins: 1.0,
                 losses: 1.0,
                 ratio: 1.0,
@@ -386,7 +405,14 @@ function addShow(data) {
                     animeTestCollection.insert(song);
                   }
                   else {
-                    animeCollection.updateMany({idAlist: song.idAlist},{$set: {averageScore: song.averageScore}});
+                    animeCollection.updateMany(
+                      {idAlist: song.idAlist},
+                      {$set: {
+                        averageScore: song.averageScore,
+                        studio: song.studio,
+                        tags: song.tags
+                      }
+                    });
                   }
                 });
               }
@@ -407,84 +433,6 @@ function addShow(data) {
 }
 // Define our query variables and values that will be used in the query request
 
-function findOpFromAninx(song) {
-  /*try{
-    var allNamesDuplicates=[];
-    song.alternateNames.forEach(function(oneName){
-      if (oneName!=null) allNamesDuplicates.push(oneName);
-    });
-
-    allNamesDuplicates.push(song.series);
-    allNames = allNamesDuplicates.filter(function(item, pos) {
-      return allNamesDuplicates.indexOf(item) == pos;
-    })
-
-    var yearText = song.year;
-
-    if(song.year<2000) {
-      yearText = (''+song.year).charAt(2)+'0s';
-      allNames.forEach(function(thisName){
-        var url ='/'+yearText+"/"+encodeURIComponent(thisName);
-        //console.log(url);
-        tryUrl(url);
-      });
-    }
-
-    else {
-      allNames.forEach(function(thisName){
-        ["Autumn","Spring","Winter","Summer"].forEach(function(season){
-          var url ='/'+yearText+"/"+season+"/"+encodeURIComponent(thisName);
-          tryUrl(url);
-        });
-      });
-    }
-
-    function tryUrl(url) {
-      var url="https://aninx.com"+url+'/';
-      var options = {
-          method: 'POST',
-          headers: {
-              'User-Agent': 'Mozilla/5.0'
-          }
-      };
-
-      fetch(url, options)
-      .then(function(response) {
-        if (response.status >= 400) {
-            return null;
-        }
-        return response.text();
-      })
-
-      .then(function (body) {
-        if (body==null) return;
-        var array1 = body.split('<td class="fb-n"><a href="'+url);
-
-        var i=0;
-        var match=false;
-        while (i<array1.length && match==false){
-          var songurl = array1[i].split('">')[0];
-          var prefix = "%5BOP";
-          if(song.ending) {
-            prefix="%5BED";
-          }
-          if(songurl.indexOf(prefix+song.opNumber+"%5D")>0) {
-            song.url = "https://aninx.com"+url+songurl;
-            song.type = 'video/webm';
-            console.log(song.url);
-
-            animeTestCollection.deleteOne({ songid: song.songid });
-            animeCollection.insert(song);
-            match=true;
-            return;
-          }
-          i++;
-        }
-      });
-    }
-  }catch(err) {}*/
-}
-
 
 var opStack = [];
 var anilisti = 0;
@@ -499,7 +447,7 @@ setInterval(function(){
 
 setInterval(function(){
   anilisti++;
-  if(anilisti<1000)
+  if(anilisti<3000)
     getTopShows(anilisti,10)
   else {
     anilisti=0;

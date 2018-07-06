@@ -11,6 +11,10 @@
     padding-bottom: 3px;
 }
 
+#rule-button {
+  width: 100%;
+}
+
 /* Hide the browser's default radio button */
 .radiobuttons input {
     position: absolute;

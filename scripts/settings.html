@@ -31,6 +31,13 @@
     <option value="player">Player</option>
   </select>
 
+  <div class='anime-settings'><p class="optionheader">Openings/Endings:</p>
+  <div id="settings-oped" class="settings-horizontal">
+    <label id="openings" class="radiobuttons">Openings<input value="openings" type="radio" name="radio-oped" checked="checked"><span class="checkmark"></span></label>
+    <label id="endings" class="radiobuttons">Endings<input value="endings" type="radio" name="radio-oped"><span class="checkmark"></span></label>
+    <label id="both" class="radiobuttons">Both<input value="both" type="radio" name="radio-oped"><span class="checkmark"></span></label>
+  </div></div>
+
   <p id= "round-option" class="option-tab">Round Options</p>
   <div id = "round-option-group" class="option-group">
     <p> <label for="songs-text">Number of songs:</label>
@@ -60,12 +67,6 @@
 
   <p id= "filter-option" class="option-tab">Filter Options</p>
   <div id = "filter-option-group" class="option-group">
-    <div class='anime-settings'><p class="optionheader">Openings/Endings:</p>
-    <div id="settings-oped" class="settings-horizontal">
-      <label id="openings" class="radiobuttons">Openings<input value="openings" type="radio" name="radio-oped" checked="checked"><span class="checkmark"></span></label>
-      <label id="endings" class="radiobuttons">Endings<input value="endings" type="radio" name="radio-oped"><span class="checkmark"></span></label>
-      <label id="both" class="radiobuttons">Both<input value="both" type="radio" name="radio-oped"><span class="checkmark"></span></label>
-    </div></div>
     <p> <label for="difficulty-text">Popularity range:</label>
       <input type="text" id="difficulty-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
     </p>
@@ -85,13 +86,23 @@
       <input type="text" id="avg-score-text" readonly style="border:0; font-weight:bold; background-color: #fafafa;font-family: Montserrat,sans-serif; cursor: default;font-size: large;">
     </p>
     <div id="avg-score-range" class="anime-settings"></div>
-
-    <div class="music-settings">
-      <p class="optionheader">Match by:</p>
-      <div id="settings-select-tags" class="settings-flex">
-      </div>
-    </div>
   </div>
+
+  <p id= "tag-option" class="option-tab">Tag Options</p>
+  <div id = "tag-option-group" class="option-group">
+    <p class="optionheader">Match by:</p>
+    <div class="music-settings">
+      <div id="settings-select-tags" class="settings-flex"></div>
+    </div>
+    <div class="anime-settings">
+      <div id="settings-select-tags-anime" class="settings-flex"></div>
+    </div>
+    <button onclick="selectAll()">Select All</button>
+    <button style="float:right;" onclick="deselectAll()">Deselect All</button>
+    <br>
+  </div>
+
+
   <p id= "advanced-option" class="option-tab">Advanced Options</p>
   <div id = "advanced-option-group" class="option-group" style="margin-left:0px">
     <button id='rule-button' onclick="createRules()">
@@ -107,6 +118,7 @@
           <option value="series">Series</option>
           <option value="title">Title</option>
           <option value="artist">Artist</option>
+          <option value="studio">Studio</option>
         </select>
         <select class="music-settings">
           <option value="title">Title</option>

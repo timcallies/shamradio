@@ -21,6 +21,27 @@ const genres = [
   'blues',
   'country'
 ];
+
+const genresAnime = [
+  'Action',
+  'Adventure',
+  'Comedy',
+  'Ecchi',
+  'Drama',
+  'Sci-Fi',
+  'Mecha',
+  'Thriller',
+  'Fantasy',
+  'Mystery',
+  'Romance',
+  'Psychological',
+  'Supernatural',
+  'Mahou Shoujo',
+  'Slice of Life',
+  'Sports',
+  'Music',
+  'Horror'
+];
 var canImport = false;
 
 var filterGroup;
@@ -33,11 +54,19 @@ function settingsContainer(container) {
     document.getElementById(container).innerHTML=data;
 
     genres.forEach(function(genre){
-      var tagName=genre.replace(" ","_");
+      var tagName=genre.replace(/ /g,"_");
       $('#settings-select-tags').append($("<label id='settings-tag-"+tagName+"' class='checkboxcontainer'>").text(genre.toProperCase()));
 
       $('#settings-tag-'+tagName).append('<input value="'+genre+'" type="checkbox" checked="checked" class="tags-checkbox">');
       $('#settings-tag-'+tagName).append('<span class="checkboxmark"></span>');
+    });
+
+    genresAnime.forEach(function(genre){
+      var tagName=genre.replace(/ /g,"_");
+      $('#settings-select-tags-anime').append($("<label id='settings-tag-anime-"+tagName+"' class='checkboxcontainer'>").text(genre.toProperCase()));
+
+      $('#settings-tag-anime-'+tagName).append('<input value="'+genre+'" type="checkbox" checked="checked" class="tags-anime-checkbox">');
+      $('#settings-tag-anime-'+tagName).append('<span class="checkboxmark"></span>');
     });
 
     $("#music-mode").click(function() {
@@ -224,6 +253,9 @@ function getSettings(){
   if ($('input[name=radio]:checked').val() == 'anime-mode')
   {
     thisMatchBy = $("#settings-guess-anime").val();
+    $('.tags-anime-checkbox:checkbox:checked').each(function() {
+      tagArray.push(this.checked ? $(this).val() : "");
+    });
   }
 
   console.log($('input[name=radio]:checked').val());
@@ -447,6 +479,11 @@ function presetResponse(options, isOwner){
   }
 }
 
+function presetSaved(presets,thisName) {
+  updatePresets(presets);
+  $('#settings-preset').val(thisName);
+}
+
 function updatePresets(presets){
   $('#settings-preset').empty();
   $('#settings-preset').append('<option value="1">Music (Popular)</option>');
@@ -498,6 +535,31 @@ function refreshSettings(hostsettings) {
   $('#avg-score-range').slider('values',1,hostsettings.avgScoreMax);
   $( "#avg-score-text" ).val(($( "#avg-score-range" ).slider( "values", 0 ) +
     " - " + $( "#avg-score-range" ).slider( "values", 1 ) ));
+
+  //Refresh the tags
+  if(hostsettings.mode == 'music-mode') {
+    $('#settings-select-tags').children().each(function() {
+      console.log($(this).find('input').val());
+      if(hostsettings.tags.indexOf($(this).find('input').val()) > -1 ){
+        $(this).find('input').prop("checked", true);
+      }
+      else {
+        $(this).find('input').prop("checked", false);
+      }
+    });
+  }
+  if(hostsettings.mode == 'anime-mode') {
+    $('#settings-select-tags-anime').children().each(function() {
+      console.log($(this).find('input').val());
+      if(hostsettings.tags.indexOf($(this).find('input').val()) > -1 ){
+        $(this).find('input').prop("checked", true);
+      }
+      else {
+        $(this).find('input').prop("checked", false);
+      }
+    });
+  }
+
 
   if (hostsettings.customQuery != undefined) {
     $('#advanced-option-group').empty();
@@ -580,4 +642,22 @@ function refreshSettings(hostsettings) {
   }
   checkMode();
   refreshButtons();
+}
+
+function selectAll() {
+  $('#settings-select-tags-anime').children().each(function() {
+    $(this).find('input').prop("checked", true);
+  });
+  $('#settings-select-tags').children().each(function() {
+    $(this).find('input').prop("checked", true);
+  });
+}
+
+function deselectAll() {
+  $('#settings-select-tags-anime').children().each(function() {
+    $(this).find('input').prop("checked", false);
+  });
+  $('#settings-select-tags').children().each(function() {
+    $(this).find('input').prop("checked", false);
+  });
 }

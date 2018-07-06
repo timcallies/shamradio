@@ -10,6 +10,7 @@ var playlists = require('./playlists.js');
 var MongoClient = require('mongodb').MongoClient;
 var spotify = require('./spotify-import.js');
 var _ = require('lodash');
+var md5 = require('md5');
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
 const baseUrl="https://hatradio.herokuapp.com";
 var favicon = require('serve-favicon');
@@ -350,7 +351,7 @@ MongoClient.connect(url, function(err, db) {
 
     socket.on('createserver', function(servername,password,sessionId,userSession,isOnline,presetId) {
       //Generate a hostid for a local game
-      var hostid=servername.hashCode();
+      var hostid=md5(servername).slice(0,8);
 
       if(isOnline==0) {
         servername = "";
@@ -735,12 +736,18 @@ MongoClient.connect(url, function(err, db) {
         else{
           presetCollection.findOne({id:presetId, owner:account.username}).then(preset => {
             if (preset==null) return;
-            preset.options = presetOptions;
-            preset.name = presetName;
-            presetCollection.save(preset);
-            presetCollection.find({owner:account.username}).toArray().then(presets => {
-              socket.emit('presetresponse',presets);
-              socket.emit('consolemessage','Preset saved');
+            preset = {
+              name: presetName,
+              id: presetId,
+              options: presetOptions,
+              owner: account.username
+            };
+            presetCollection.remove({id:presetId, owner:account.username}).then( function() {
+              presetCollection.save(preset);
+              presetCollection.find({owner:account.username}).toArray().then(presets => {
+                socket.emit('presetresponse', presets, preset.id);
+                socket.emit('consolemessage','Preset saved');
+              });
             });
           });
         }
@@ -1106,6 +1113,7 @@ MongoClient.connect(url, function(err, db) {
       {
         query.push({
             $match: {
+              tags: {$in: hostlist[hostid].options.tags},
               $and: [
                 { idMal: {$in: hostlist[hostid].playlist} },
                 { ending: {$in: oped} },
@@ -1125,6 +1133,7 @@ MongoClient.connect(url, function(err, db) {
       else {
         query.push({
             $match: {
+              tags: {$in: hostlist[hostid].options.tags},
               $and: [
                 { ending: {$in: oped} },
                 { songid: { $not: { $eq: "dupe"} }},

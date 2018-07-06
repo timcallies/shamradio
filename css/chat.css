@@ -31,7 +31,7 @@ form#chat-form
   background: white;
 }
 
-#error-messages { background: #ff4343; }
+.error-messages { background: #ff4343 !important; }
 #chat-messages li {font-size: larger; padding: 5px 10px; background: #f9f9f9; }
 #chat-messages li:nth-child(odd) { background: #eee; }
 
