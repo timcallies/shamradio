@@ -362,6 +362,12 @@ function addShow(data) {
               var number = op.split("&quot;")[0].split("#").join('').split(":").join('').trim();
               var name = op.split("&quot;")[1].trim();
               var artist = op.split("&quot;")[2].split(" by ")[1].split(" (ep")[0].trim();
+              var tags = data.genres;
+              var studio = undefined;
+              try {
+                studio = data.studios.edges[0].node.name;
+              } catch(err) {}
+              tags.push('Other');
 
               //Create the song object
               song = {
@@ -380,8 +386,8 @@ function addShow(data) {
                 alternateNames: alltitles,
                 averageScore: data.averageScore,
                 ending:(oped=='ed'),
-                tags: data.genres,
-                studio: data.studios.edges[0].node.name,
+                tags: tags,
+                studio: studio,
                 wins: 1.0,
                 losses: 1.0,
                 ratio: 1.0,
@@ -446,9 +452,11 @@ setInterval(function(){
 },1000);
 
 setInterval(function(){
-  anilisti++;
   if(anilisti<3000)
+  {
     getTopShows(anilisti,10)
+    anilisti++;
+  }
   else {
     anilisti=0;
   }

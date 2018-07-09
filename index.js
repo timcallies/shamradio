@@ -12,8 +12,9 @@ var spotify = require('./spotify-import.js');
 var _ = require('lodash');
 var md5 = require('md5');
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
-const baseUrl="https://hatradio.herokuapp.com";
+const baseUrl="https://shamradio.herokuapp.com";
 var favicon = require('serve-favicon');
+var update = require('./update.js');
 
 app.use(cookieParser());
 

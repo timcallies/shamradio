@@ -1,4 +1,4 @@
-const baseUrl="https://hatradio.herokuapp.com";
+const baseUrl="https://shamradio.herokuapp.com";
 var SpotifyWebApi = require('spotify-web-api-node');
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
