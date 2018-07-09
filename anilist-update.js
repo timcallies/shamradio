@@ -12,7 +12,12 @@ MongoClient.connect(url, function(err, dbo) {
   db = dbo.db("shamradio");
   animelist = db.collection("Animelist");
   animetest = db.collection("AnimeTest");
-
+  animelist.find({tags: null}).toArray().then(function(array){
+    array.forEach(song => {
+      song.tags = ['Other'];
+      animelist.save(song);
+    });
+  });
 
 
 

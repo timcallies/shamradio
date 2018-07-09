@@ -40,7 +40,8 @@ const genresAnime = [
   'Slice of Life',
   'Sports',
   'Music',
-  'Horror'
+  'Horror',
+  'Other'
 ];
 var canImport = false;
 
