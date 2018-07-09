@@ -541,7 +541,7 @@ MongoClient.connect(url, function(err, db) {
           if (hostoptions.matchBy=="series")
             query = {series: {'$regex': msg, "$options": 'i' }};
 
-          hostlist[hostid].collection.find(query).toArray().then(function(count){
+          hostlist[hostid].collection.find(query).sort({popularity: -1}).toArray().then(function(count){
             var output=[]
             var i=0;
             if (hostoptions.matchBy=="title")

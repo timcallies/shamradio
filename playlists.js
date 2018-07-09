@@ -110,7 +110,7 @@ function createBalancedPlaylist(host){
         thisLookup[song] = 1;
       });
       playerRotation.push({
-        playlist: thisPlayer.personalPlaylist,
+        playlist: Array.from(thisPlayer.personalPlaylist),
         score: 0,
         index: 0,
         lookup: thisLookup,
