@@ -1,4 +1,5 @@
-var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
+var configs = require('./configs.js');
+var url = configs.getMongoURL();
 var MongoClient = require('mongodb').MongoClient;
 var anilist = require('./anilist-import.js');
 var songlist;

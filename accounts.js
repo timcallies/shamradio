@@ -1,5 +1,6 @@
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
+var configs = require('./configs.js');
+var url = configs.getMongoURL();
 var md5 = require('md5');
 var bcrypt = require('bcrypt');
 

@@ -11,8 +11,9 @@ var MongoClient = require('mongodb').MongoClient;
 var spotify = require('./spotify-import.js');
 var _ = require('lodash');
 var md5 = require('md5');
-var url = "mongodb://admin:fr44reals@ds119161.mlab.com:19161/shamradio";
-const baseUrl="https://shamradio.herokuapp.com";
+var configs = require('./configs.js');
+var url = configs.getMongoURL();
+const baseUrl="https://www.shamradio.com";
 var favicon = require('serve-favicon');
 var update = require('./update.js');
 

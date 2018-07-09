@@ -45,6 +45,18 @@ input {
   height: 65px;
 }
 
+#footer {
+  overflow: hidden;
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  background-color: #b7b7b7;
+  z-index: 1;
+  padding: 5px;
+  display: flex;
+}
+
+
 .centerY {
   top: 50%;
   transform: translateY(-50%);
