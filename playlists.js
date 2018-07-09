@@ -78,6 +78,8 @@ function importAnilistPlaylists(host){
             });
           }
         }
+        var uniquePlaylist = [...new Set(player.personalPlaylist)];
+        player.personalPlaylist = uniquePlaylist;
         resolve();
       });
     });
@@ -111,13 +113,14 @@ function createBalancedPlaylist(host){
         playlist: thisPlayer.personalPlaylist,
         score: 0,
         index: 0,
-        lookup: thisLookup
+        lookup: thisLookup,
+        name: thisPlayer.username
       });
     }
   });
 
   if (playerRotation.length>0){
-    var lowestScoredPlayer = playerRotation[0];
+    let lowestScoredPlayer = playerRotation[0];
 
     //Loop through the playerRotation, addings songs from each player until they have more than the others
     while(keepSearching) {
@@ -137,8 +140,13 @@ function createBalancedPlaylist(host){
 
         //Increments scores for every player who has the song
         for (var i=0; i<playerRotation.length; i++) {
-          if(playerRotation[i].lookup[thisSong] == 1){
-            playerRotation[i].score++;
+          var thisIndex = playerRotation[i].playlist.indexOf(thisSong);
+          if(thisIndex >= 0){
+            playerRotation[i].score = playerRotation[i].score+1;
+            if(thisIndex >= playerRotation[i].index)
+            {
+              playerRotation[i].playlist.splice(thisIndex,1);
+            }
           }
         }
       }

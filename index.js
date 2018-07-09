@@ -370,18 +370,22 @@ MongoClient.connect(url, function(err, db) {
         hostid=servername;
       }
 
-      if (servername.length>15 || servername.length<3 ) {
-        socket.emit('errormessage',"Server names must be between 3-15 characters")
-      }
+      accounts.checkUserSession(userSession).then(function(account){
+        if(isOnline==1 && servername.length<3 && account!=null){
+          servername = account.username+"'s Game";
+        }
 
-      else if(hostid in hostlist) {
-        //If such a server already exists
-        socket.emit('errormessage',"A server with that name already exists")
-      }
+        if (servername.length>25 || servername.length<3 ) {
+          socket.emit('errormessage',"Server names must be between 3-25 characters")
+        }
 
-      else {
-        //Creates the server and player variables
-        accounts.checkUserSession(userSession).then(function(account){
+        else if(hostid in hostlist) {
+          //If such a server already exists
+          socket.emit('errormessage',"A server with that name already exists")
+        }
+
+        else {
+          //Creates the server and player variables
           presetCollection.findOne({id: presetId}).then(preset => {
             var thisServer = new Host(hostid, servername, preset);
             hostlist[hostid] = thisServer;
@@ -408,8 +412,9 @@ MongoClient.connect(url, function(err, db) {
             socket.emit('createserverresponse');
             io.of('/servers').emit('updateserverlist', shortServerList());
           });
-        });
-      }
+        }
+      });
+
     });
 
     socket.on('changename', function(sessionId,newName) {
@@ -926,7 +931,7 @@ MongoClient.connect(url, function(err, db) {
                     hostlist[hostid].gameStatus='scoring';
                     var playerPlaylists = [];
                     hostlist[hostid].playerlist.forEach(function(player){
-                      if(player.personalPlaylist.indexOf(hostlist[hostid].currentSong)>0) {
+                      if(player.personalPlaylist.indexOf(hostlist[hostid].currentSong)>=0) {
                         playerPlaylists.push(player.username);
                       }
                     });
@@ -1042,7 +1047,7 @@ MongoClient.connect(url, function(err, db) {
         }
 
         if (hostoptions.mode=='anime-mode') {
-        hostlist[hostid].currentSong = doc.songid;
+        hostlist[hostid].currentSong = doc.idMal;
         hostlist[hostid].alreadyPlayed.push(doc.songid);
           io.of('/'+hostid).emit(
             'roundstart',
