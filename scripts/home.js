@@ -11,7 +11,7 @@ else {
 }
 
 function playOnline() {
-  $('#button-group').fadeOut(50);
+  $('#gameselect').fadeOut(50);
   setTimeout(function() {
     $('#server-browser').fadeIn(50);
     $('#mainscreen-bg').fadeIn(50);

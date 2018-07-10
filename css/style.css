@@ -108,4 +108,5 @@ a#sitename {
   overflow-y: hidden;
   text-align: center;
   z-index: 1;
+  overflow: inherit;
 }
