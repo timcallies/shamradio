@@ -13,7 +13,7 @@ var _ = require('lodash');
 var md5 = require('md5');
 var configs = require('./configs.js');
 var url = configs.getMongoURL();
-const baseUrl="https://www.shamradio.com";
+const baseUrl="http://www.shamradio.com";
 var favicon = require('serve-favicon');
 var update = require('./update.js');
 

@@ -1,4 +1,4 @@
-const baseUrl="https://www.shamradio.com";
+const baseUrl="http://www.shamradio.com";
 var SpotifyWebApi = require('spotify-web-api-node');
 var MongoClient = require('mongodb').MongoClient;
 var configs = require('./configs.js');
