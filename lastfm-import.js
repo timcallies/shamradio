@@ -1,8 +1,8 @@
-var MongoClient = require('mongodb').MongoClient;
+var apikey = "4ad5fb4ef2e8815c6ef22318fa445489";
+var sharedSecret = "3d922b0a8a1ae335a13cd46a335f7063";
 var configs = require('./configs.js');
 var url = configs.getMongoURL();
-var apikey = "4ad5fb4ef2e8815c6ef22318fa445489";
-var sharedSecret = configs.getLastfmSecret();
+var MongoClient = require('mongodb').MongoClient;
 const LastFM = require('last-fm');
 const lastfm = new LastFM(apikey);
 

@@ -19,10 +19,4 @@ MongoClient.connect(url, function(err, dbo) {
       animelist.save(song);
     });
   });
-
-
-
-
-
-
 });

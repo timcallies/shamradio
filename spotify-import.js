@@ -5,7 +5,7 @@ var configs = require('./configs.js');
 var url = configs.getMongoURL();
 var spotifyApi = new SpotifyWebApi({
   clientId: '6d404988dbe84c42b2ffb44735ac6ab0',
-  clientSecret: configs.getSpotifySecret(),
+  clientSecret: '375e583219334d4aa329727ee2cee6ea',
   redirectUri: baseUrl+'/spotify'
 });
 var db;

@@ -1,12 +1,11 @@
 var fetch = require('isomorphic-fetch');
-var MongoClient = require('mongodb').MongoClient;
 var configs = require('./configs.js');
 var url = configs.getMongoURL();
-
 var db;
 var animeTestCollection;
 var animeCollection;
 var mostPopular;
+var MongoClient = require('mongodb').MongoClient;
 getMostPopularAnime();
 
 MongoClient.connect(url, function(err, dbo) {
