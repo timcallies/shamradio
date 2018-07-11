@@ -13,9 +13,9 @@
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <body>
     <div id="header">
-      <a id="sitename" href="/">Shamradio</a>
+      <a id="sitename" href="/"><img id="logo" src="/img/logo.png" height="70px"/>Shamradio</a>
       <button class='login-button' id="login-button" onclick="window.location.href = '/login';">Login</button>
-      <button class='login-button' id="account-button" onclick="window.location.href = '/account';">My Account</button>
+      <button class='login-button' id="account-button" onclick="window.location.href = '/account';"><img src="/img/account.png" height="20px"/></button>
     </div>
     <div id="mainscreen">
       <div id="gameselect">
@@ -42,13 +42,9 @@
       <div id=server-browser>
         <div id="create-server" style="background:gray;display:flex;flex-wrap: wrap;">
           <input id="servername" placeholder="Server Name" autocomplete="off" autocapitalize="off" style="flex-grow: 1; width:200px;">
+          <input id="password" placeholder="Password (Optional)" autocomplete="off" autocapitalize="off" style="flex-grow: 1; width:200px;">
           <div style="display:flex; flex-grow:1;">
-            <input id="password" placeholder="Password (Optional)" autocomplete="off" autocapitalize="off" style="flex-grow: 1; width:200px;">
-            <select id='preset'>
-              <option value="1">Music (Popular)</option>
-              <option value="2">Music (My Spotify)</option>
-              <option value="3">Anime (My Anilist)</option>
-            </select>
+            <div id='playlist-select-container' style="flex-grow:1;"></div>
             <button onclick="createServer()">Create</button>
           </div>
         </div>
@@ -77,5 +73,6 @@
     </footer>
 
     <script src="/scripts/home.js"></script>
+    <script src="/scripts/playlistSelect.js"></script>
   </body>
 </html>

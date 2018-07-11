@@ -465,11 +465,6 @@ socket.on('getpresetresponse', function(options, isOwner){
   presetResponse(options,isOwner);
 });
 
-socket.emit('presetrequest', getCookie('userSession'));
-socket.on('presetresponse',function(presets,thisName) {
-  presetSaved(presets,thisName);
-});
-
 /*********************************************
 *                   GUESSES                  *
 *********************************************/

@@ -38,7 +38,7 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <body>
     <div id="header">
-      <a id="sitename" href="/">Shamradio</a>
+      <a id="sitename" href="/"><img id="logo-image" src="/img/logo.png" height="70px"/>Shamradio</a>
       <button id="logout" class ="login-button" onclick="logout()">Logout</button>
     </div>
     <div id="mainscreen">
@@ -47,75 +47,81 @@
       <br>
 
       <h2>Connected Accounts:</h2>
-      Spotify -<br>
-      <button id="spotify-button" href="#" onClick="window.open('/spotify','Login','resizable,height=400,width=370'); document.getElementById('spotify-button').disabled=true; return false;">Connect to Spotify</button><br><br>
+      <div style="display:inline-flex;">
+        <img src="/img/spotify.png" height="56px"/>
+        <button id="spotify-button" href="#" onClick="window.open('/spotify','Login','resizable,height=400,width=370'); document.getElementById('spotify-button').disabled=true; return false;">Connect</button>
+      </div><br>
 
-      Anilist -<br>
-        <div id="anilist-setup" style="display:inline-flex;">
-          <input id="anilist-name" placeholder="Anilist" autocomplete="off">
+      <div style="display:inline-flex;">
+        <img src="/img/anilist.png" height="56px"/>
+        <button id="anilist-connect-button" href="#" onClick="$('#anilist-connect').fadeIn(200);">Connect</button>
+      </div><br>
+      <div id='anilist-connect' style="display:none;">
+        <div id="anilist-setup" style="display:inline-flex; width:80%;">
+          <input id="anilist-name" placeholder="Anilist" autocomplete="off" style="width:10px; flex-grow:1;"/>
           <button id="anilist-button" onclick="importAnilist()">Import</button>
-        </div><br>
-
+        </div>
         <button id="anilist-update" onclick="updateAnilist()" style="margin-top:10px;" disabled>Change/Update</button>
         <button onclick="window.location.href = '/addmusic';" style="margin-left:10px;">Find Songs</button><br>
       </div>
     </div>
-    <div id="mainscreen-bg"></div>
-    <script>
-      var socket = io();
-      document.getElementById('mainscreen').setAttribute("style", "display: none;");
-      document.getElementById('logout').setAttribute("style", "display: inline-block;");
+  </div>
+  <div id="mainscreen-bg"></div>
+  <script>
+    var socket = io();
+    document.getElementById('mainscreen').setAttribute("style", "display: none;");
+    document.getElementById('logout').setAttribute("style", "display: inline-block;");
 
-      socket.emit('getusername',getCookie('userSession'));
+    socket.emit('getusername',getCookie('userSession'));
 
-      socket.on('getusername',function(username,spotifyAccount,anilistAccount){
-        document.getElementById('mainscreen').setAttribute("style", "display: block;");
-        $('#username').text(username);
-        if (anilistAccount!=undefined) {
-          $("#anilist-name").val(anilistAccount);
-          $("#anilist-name").prop('disabled', true);
-          $("#anilist-button").prop('disabled', true);
-          $("#anilist-update").prop('disabled', false);
-        }
-      });
-
-      socket.on('importanilistresponse',function(){
+    socket.on('getusername',function(username,spotifyAccount,anilistAccount){
+      document.getElementById('mainscreen').setAttribute("style", "display: block;");
+      $('#username').text(username);
+      if (anilistAccount!=undefined) {
+        $("#anilist-name").val(anilistAccount);
         $("#anilist-name").prop('disabled', true);
         $("#anilist-button").prop('disabled', true);
         $("#anilist-update").prop('disabled', false);
-      });
-
-      function logout(){
-        socket.emit('logout',getCookie('userSession'));
-        document.cookie = "userSession=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-        window.location.href = "/";
       }
+    });
 
-      function importAnilist(){
-        socket.emit('importanilistaccount',$('#anilist-name').val(),getCookie('userSession'));
+    socket.on('importanilistresponse',function(){
+      $("#anilist-name").prop('disabled', true);
+      $("#anilist-button").prop('disabled', true);
+      $("#anilist-update").prop('disabled', false);
+    });
+
+    function logout(){
+      socket.emit('logout',getCookie('userSession'));
+      document.cookie = "userSession=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      window.location.href = "/";
+    }
+
+    function importAnilist(){
+      socket.emit('importanilistaccount',$('#anilist-name').val(),getCookie('userSession'));
+    }
+
+    function updateAnilist() {
+      $("#anilist-name").prop('disabled', false);
+      $("#anilist-button").prop('disabled', false);
+      $("#anilist-update").prop('disabled', true);
+    }
+
+    function getCookie(cname) {
+      //Stolen from w3schools
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
       }
+      return "";
+    }
 
-      function updateAnilist() {
-        $("#anilist-name").prop('disabled', false);
-        $("#anilist-button").prop('disabled', false);
-        $("#anilist-update").prop('disabled', true);
-      }
-
-      function getCookie(cname) {
-        //Stolen from w3schools
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-      }
-
-    </script>
+  </script>
 </html>

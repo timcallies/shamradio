@@ -60,7 +60,7 @@ socket.on('serverresponse', function(serverlist){
 
 function createServer() {
   //Sends a request to create a server
-  socket.emit('createserver', $('#servername').val(), $('#password').val(),getCookie('sessionId'),getCookie('userSession'),1,$('#preset').val());
+  socket.emit('createserver', $('#servername').val(), $('#password').val(),getCookie('sessionId'),getCookie('userSession'),1,selectedPresetId);
 }
 
 function updateServers(serverlist) {
@@ -72,7 +72,7 @@ function updateServers(serverlist) {
       $('#server-'+thisServer.hostid).append($('<li class = "server-preset" id="server-preset-'+thisServer.hostid+'">').text(thisServer.preset));
     $('#server-'+thisServer.hostid).append($('<li class="server-members" id="server-members-'+thisServer.hostid+'">').text(thisServer.size+"/32"));
     $('#server-'+thisServer.hostid).append($('<input class="server-input" id="server-input-'+thisServer.hostid+'" placeholder="Password">').prop('disabled', thisServer.noPassword));
-    $('#server-'+thisServer.hostid).append($('<button class="server-button" id="server-button-'+thisServer.hostid+'" onclick="joinServer(\''+thisServer.hostid+'\')">').text("Join"));
+    $('#server-'+thisServer.hostid).append($('<button class="server-button" id="server-button-'+thisServer.hostid+'" onclick="joinServer(\''+thisServer.hostid+'\')">').prop('disabled', (thisServer.canJoin==0)).text("Join"));
   });
 }
 
@@ -80,18 +80,6 @@ function joinServer(hostid) {
   console.log(hostid);
   socket.emit('joinserverrequest',getCookie('sessionId'),getCookie('userSession'),hostid,$('#server-input-'+hostid).val());
 }
-
-socket.emit('presetrequest', getCookie('userSession'));
-socket.on('presetresponse',function(presets) {
-  $('#preset').empty();
-  $('#preset').append('<option value="1">Music (Popular)</option>');
-  $('#preset').append('<option value="2">Music (Spotify)</option>');
-  $('#preset').append('<option value="3">Anime (Anilist)</option>');
-  presets.forEach(function(preset) {
-    var thisPreset =  $('<option value="'+preset.id+'">').text(preset.name);
-    $('#preset').append(thisPreset);
-  });
-});
 
 function getCookie(cname) {
   //Stolen from w3schools
@@ -109,6 +97,8 @@ function getCookie(cname) {
   return "";
 }
 
+function updatePlaylistChoice(id) {}
+
 String.prototype.hashCode = function(){
     var hash = 0;
     for (var i = 0; i < this.length; i++) {
@@ -117,9 +107,4 @@ String.prototype.hashCode = function(){
         hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
-}
-
-if ('serviceWorker' in navigator) {
-  console.log("Will the service worker register?");
-  navigator.serviceWorker.register('service-worker.js');
 }

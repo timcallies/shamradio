@@ -4,7 +4,7 @@ button {
   background-color: #4e4ee0;
   color: #fff;
   height: 56px;
-  padding: 15px 32px;
+  padding: 15px 20px;
   text-align: center;
   font-weight: bold;
   text-decoration: none;
@@ -20,6 +20,8 @@ button[disabled]{
   background-color: #3d3d3d;
   color: #c9c9c9;
 }
+
+
 
 input {
   box-sizing: border-box;
@@ -38,11 +40,11 @@ input {
   background-color: #20203b;
   max-width: 100%;
   color: white;
-  font-size: 50px;
+  font-size: 2em;
   font-weight: bold;
-  padding: 20px;
+  padding: 10px;
   z-index: 1;
-  height: 65px;
+  height: 56px;
 }
 
 #footer {
@@ -74,6 +76,7 @@ a#sitename {
   position: absolute;
   color: inherit;
   text-decoration: inherit;
+  margin-top:-10px;
 }
 
 .hidden {
@@ -109,4 +112,5 @@ a#sitename {
   text-align: center;
   z-index: 1;
   overflow: inherit;
+  padding-bottom: 20px;
 }

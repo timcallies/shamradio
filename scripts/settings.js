@@ -76,16 +76,6 @@ function settingsContainer(container) {
       updateImport();
     });
 
-    $("#settings-preset").change(function() {
-      if($(this).val()=='create'){
-        $('#preset-name').css('display','inline-flex');
-      }
-      else {
-        $('#preset-name').css('display','none');
-        getPreset($(this).val());
-      }
-    });
-
 
     $(".option-tab").append($("<div class='expand'>").text('^'));
     $(".option-tab").click(function() {
@@ -278,7 +268,7 @@ function getSettings(){
     ageMax:$( "#age-range" ).slider( "values", 1 ),
     tags: tagArray,
     importMode:$('input[name=radio-import]:checked').val(),
-    presetId: $('#settings-preset').val(),
+    presetId: selectedPresetId,
     customQuery: getQuery()
   };
   return options;
@@ -465,7 +455,7 @@ function getQueryFromItem(object,t){
 ***********************************/
 function savePreset(){
   var presetOptions = getSettings();
-  var presetId = $('#settings-preset').val();
+  var presetId = selectedPresetId;
   var presetName = $('#preset-name > input').val();
   sendPreset(presetOptions, presetId, presetName);
 }
@@ -482,7 +472,7 @@ function presetResponse(options, isOwner){
 
 function presetSaved(presets,thisName) {
   updatePresets(presets);
-  $('#settings-preset').val(thisName);
+  $('.select-playlist').text(thisName);
 }
 
 function updatePresets(presets){
@@ -498,9 +488,10 @@ function updatePresets(presets){
 }
 
 function refreshSettings(hostsettings) {
+  selectedPresetId = hostsettings.presetId;
   $('#settings-select-mode').find('input[value="'+hostsettings.mode+'"]').prop("checked", true);
-  $('#settings-preset').val(hostsettings.presetId);
-  $('#preset-name > input').val($('#settings-preset option:selected').text());
+  $('.select-playlist').text(findNameById(hostsettings.presetId));
+  $('#preset-name > input').val(findNameById(hostsettings.presetId));
   if(hostsettings.mode == 'music-mode')
     $('#settings-guess-music').val(hostsettings.matchBy);
   if(hostsettings.mode == 'anime-mode')
@@ -540,7 +531,6 @@ function refreshSettings(hostsettings) {
   //Refresh the tags
   if(hostsettings.mode == 'music-mode') {
     $('#settings-select-tags').children().each(function() {
-      console.log($(this).find('input').val());
       if(hostsettings.tags.indexOf($(this).find('input').val()) > -1 ){
         $(this).find('input').prop("checked", true);
       }
@@ -551,7 +541,6 @@ function refreshSettings(hostsettings) {
   }
   if(hostsettings.mode == 'anime-mode') {
     $('#settings-select-tags-anime').children().each(function() {
-      console.log($(this).find('input').val());
       if(hostsettings.tags.indexOf($(this).find('input').val()) > -1 ){
         $(this).find('input').prop("checked", true);
       }
@@ -566,7 +555,6 @@ function refreshSettings(hostsettings) {
     $('#advanced-option-group').empty();
     var group = hostsettings.customQuery.$match;
     for (query in group) {
-      console.log(query);
       if(query=='$and'){
         addGroup(group[query],'$and',$('#advanced-option-group'));
       }
@@ -580,7 +568,6 @@ function refreshSettings(hostsettings) {
     $('#advanced-option-group').append("    <button id='rule-button' onclick='createRules()'>Create Rules</button>");
   }
 
-  console.log(hostsettings);
 
   function addGroup(thisgroup, andor, parent) {
     var groupobject = filterGroup.clone();
@@ -628,7 +615,6 @@ function refreshSettings(hostsettings) {
         itemObject.find('input').val(val);
         itemObject.find('select:last-of-type').val(mode);
 
-        console.log(val,mode);
         if(hostsettings.mode=='music-mode'){
           itemObject.find('.music-settings').val(key);
         }
@@ -652,6 +638,16 @@ function selectAll() {
   $('#settings-select-tags').children().each(function() {
     $(this).find('input').prop("checked", true);
   });
+}
+
+function updatePlaylistChoice(id) {
+  if(id=='create'){
+    $('#preset-name').css('display','inline-flex');
+  }
+  else {
+    $('#preset-name').css('display','none');
+    getPreset(id);
+  }
 }
 
 function deselectAll() {

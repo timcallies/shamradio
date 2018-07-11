@@ -441,20 +441,6 @@ MongoClient.connect(url, function(err, db) {
 
         //Closes the server to the public
         console.log("Game beginning on "+hostid);
-        hostlist[hostid].round=0;
-        hostlist[hostid].canjoin=0;
-        hostlist[hostid].gameStatus='setup';
-
-        //Updates the publicserverlist
-        var newServerList = [];
-
-        for(var i=0; i<publicserverlist.length; i++)
-        {
-          if(publicserverlist[i].hostid != hostid)
-            newServerList.push(publicserverlist[i]);
-        }
-        publicserverlist = newServerList;
-
         importAndStart();
 
         async function importAndStart() {
@@ -498,6 +484,11 @@ MongoClient.connect(url, function(err, db) {
               }
               else {
                 hostlist[hostid].alreadyPlayed = [];
+                hostlist[hostid].round=0;
+                hostlist[hostid].canjoin=0;
+                hostlist[hostid].gameStatus='setup';
+                io.of('/servers').emit('updateserverlist', shortServerList());
+
                 beginPlaying(hostid,hostlist[hostid].timeStarted);
                 fail=1;
               }
@@ -640,7 +631,6 @@ MongoClient.connect(url, function(err, db) {
         player.score=0;
       });
       io.of('/'+hostid).emit('reopenhost', getPlayerList(hostid) );
-      publicserverlist.push(hostlist[hostid]);
       hostlist[hostid].canjoin=1;
       io.of('/servers').emit('updateserverlist', shortServerList());
     });
@@ -657,6 +647,10 @@ MongoClient.connect(url, function(err, db) {
       }
       if(hostlist[hostid].playerlist.length>=32) {
         socket.emit('errormessage',"That server is full.");
+        return;
+      }
+      if(hostlist[hostid].canjoin==0) {
+        socket.emit('errormessage',"That server is closed.");
         return;
       }
 
@@ -685,12 +679,30 @@ MongoClient.connect(url, function(err, db) {
       });
     });
 
-    socket.on('presetrequest', function(userSession){
-      accounts.checkUserSession(userSession).then(account => {
-        if (account == null) return;
-        presetCollection.find({owner:account.username}).toArray().then(presets => {
-          socket.emit('presetresponse',presets);
+    function getPresets(userSession) {
+      return new Promise(resolve => {
+        accounts.checkUserSession(userSession).then(account => {
+          var presets = [];
+          presetCollection.find({id: {$in: ['1','2','3']}}).toArray().then(defaultPresets => {
+            presets.push(defaultPresets);
+            if (account == null) {
+              presets.push([]);
+              resolve(presets);
+            }
+            else{
+              presetCollection.find({owner:account.username}).toArray().then(userPresets => {
+                presets.push(userPresets);
+                resolve(presets);
+              });
+            }
+          });
         });
+      });
+    }
+
+    socket.on('presetrequest', function(userSession){
+      getPresets(userSession).then(presets => {
+        socket.emit('presetresponse',presets);
       });
     });
 
@@ -704,7 +716,7 @@ MongoClient.connect(url, function(err, db) {
               isOwner = true;
             }
           }
-          socket.emit('getpresetresponse', preset.options, isOwner)
+          socket.emit('getpresetresponse', JSON.parse(preset.options), isOwner)
         });
       })
 
@@ -729,12 +741,14 @@ MongoClient.connect(url, function(err, db) {
               var preset = {
                 name: presetName,
                 id: newId,
-                options: presetOptions,
+                options: JSON.stringify(presetOptions),
                 owner: account.username
               };
               presetCollection.save(preset);
               presetCollection.find({owner:account.username}).toArray().then(presets => {
-                socket.emit('presetresponse',presets);
+                getPresets(userSession).then(presets => {
+                  socket.emit('presetresponse',presets);
+                });
                 socket.emit('consolemessage','Preset saved');
               });
             });
@@ -743,18 +757,14 @@ MongoClient.connect(url, function(err, db) {
         else{
           presetCollection.findOne({id:presetId, owner:account.username}).then(preset => {
             if (preset==null) return;
-            preset = {
-              name: presetName,
-              id: presetId,
-              options: presetOptions,
-              owner: account.username
-            };
-            presetCollection.remove({id:presetId, owner:account.username}).then( function() {
-              presetCollection.save(preset);
-              presetCollection.find({owner:account.username}).toArray().then(presets => {
-                socket.emit('presetresponse', presets, preset.id);
-                socket.emit('consolemessage','Preset saved');
+            preset.name = presetName;
+            preset.options= JSON.stringify(presetOptions),
+            presetCollection.save(preset);
+            presetCollection.find({owner:account.username}).toArray().then(presets => {
+              getPresets(userSession).then(presets => {
+                socket.emit('presetresponse',presets,preset.id);
               });
+              socket.emit('consolemessage','Preset saved');
             });
           });
         }
@@ -779,6 +789,21 @@ MongoClient.connect(url, function(err, db) {
             });
           });
         }
+      });
+    });
+
+    socket.on('savepresetdescription', function(userSession,presetId,newDescription){
+      accounts.checkUserSession(userSession).then(account => {
+        if(account == null) return;
+        presetCollection.findOne({id:presetId}).then(preset => {
+          if(preset==null) return;
+          if(preset.owner == account.username) {
+            preset.description = newDescription;
+            presetCollection.remove({id: presetId}).then(function(){
+              presetCollection.insert(preset);
+            });
+          }
+        });
       });
     });
 
@@ -879,7 +904,7 @@ MongoClient.connect(url, function(err, db) {
 
     this.preset = thisPreset;
 
-    this.options=thisPreset.options;
+    this.options=JSON.parse(thisPreset.options);
 
     var thisHost = io.of('/'+hostid);
     thisHost.on('connection', function(socket){
@@ -896,7 +921,8 @@ MongoClient.connect(url, function(err, db) {
           name: server.name,
           size: server.playerlist.length,
           noPassword: (server.password=='' || server.password==undefined),
-          preset: server.preset.name
+          preset: server.preset.name,
+          canJoin: server.canjoin
         });
       }
     });

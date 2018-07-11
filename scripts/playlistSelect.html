@@ -1,0 +1,130 @@
+<style>
+  .select-screen-text{
+    line-height: 1em;
+    margin-top: -1.2em;
+    font-size: small;
+    color: gray;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .select-playlist{
+    background: #cfe9ff;
+    color: #2c2c2c;
+    height: 56px;
+    line-height: 56px;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .select-black-cover {
+    display: none;
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0px; left: 0px;
+    width: 100%; height: 100%;
+    z-index: 4;
+  }
+
+  .select-playlist-window {
+    display: none;
+    background: white;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    width: 100%; max-width: 400px; height: 80%;
+    z-index: 5;
+    overflow-y: scroll;
+  }
+
+  .playlist-header{
+    padding: 5px;
+    font-size: larger;
+    font-weight: bold;
+    text-align: center;
+  }
+
+
+  .playlist-option{
+    display: block;
+    font-size: larger;
+    padding: 10px;
+    background: #e4e4e4;
+    box-sizing: border-box;
+    border: 2px solid #e4e4e4;
+  }
+  .playlist-option:hover{
+    border: 2px solid gray;
+  }
+  .playlist-option-selected{
+    border: 2px solid #acacff !important;
+  }
+
+  .playlist-owner{
+    font-size: 12px;
+    padding: 10px;
+    margin-left: 10px;
+  }
+
+  .buttons-save-delete{
+    display: inline-flex;
+    justify-content: space-around;
+    flex-flow: row-reverse;
+    width: 100%;
+    padding-top: 5px;
+  }
+  .playlist-description{
+    font-size: 16px;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .playlist-arrow {
+    float: right;
+    transform: scale(.8);
+    color: gray;
+    cursor: pointer;
+  }
+  .playlist-name {
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  textarea.description {
+    width: 100%;
+    height: 100px;
+    resize: none;
+    font-size: large;
+    box-sizing: border-box;
+  }
+
+  .playlist-group {
+    overflow: hidden;
+    height: 0px;
+    transition: height 0.5s;
+  }
+
+  ul.playlist {
+    padding: 0px;
+    margin: 0px;
+  }
+</style>
+
+
+<div class="select-playlist" onclick="openSelectScreen()">
+  Music (Popular)
+</div>
+<div class="select-screen-text">Select...</div>
+
+<div class="select-playlist-window">
+  <div class='playlist-header'>Default Playlists</div>
+  <ul id="default-playlists" class="playlist">
+  </ul>
+
+  <div class='playlist-header'>Your Playlists</div>
+  <ul id="your-playlists" class="playlist">
+  </ul>
+
+</div>
+
+<div class='select-black-cover' onclick="closeSelectScreen()"></div>
