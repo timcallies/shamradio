@@ -76,6 +76,12 @@ function updateServers(serverlist) {
   });
 }
 
+function presetsLoaded() {}
+
+function updatePresets(presets) {
+  refreshPresets(presets);
+}
+
 function joinServer(hostid) {
   console.log(hostid);
   socket.emit('joinserverrequest',getCookie('sessionId'),getCookie('userSession'),hostid,$('#server-input-'+hostid).val());

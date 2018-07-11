@@ -762,7 +762,7 @@ MongoClient.connect(url, function(err, db) {
             presetCollection.save(preset);
             presetCollection.find({owner:account.username}).toArray().then(presets => {
               getPresets(userSession).then(presets => {
-                socket.emit('presetresponse',presets,preset.id);
+                socket.emit('presetsavedresponse',presets,preset.id);
               });
               socket.emit('consolemessage','Preset saved');
             });
@@ -799,14 +799,23 @@ MongoClient.connect(url, function(err, db) {
           if(preset==null) return;
           if(preset.owner == account.username) {
             preset.description = newDescription;
-            presetCollection.remove({id: presetId}).then(function(){
-              presetCollection.insert(preset);
-            });
+            presetCollection.save(preset);
           }
         });
       });
     });
 
+    socket.on('deletepreset', function(userSession,presetId){
+      accounts.checkUserSession(userSession).then(account => {
+        if(account == null) return;
+        presetCollection.findOne({id:presetId}).then(preset => {
+          if(preset==null) return;
+          if(preset.owner == account.username) {
+            presetCollection.remove({id: presetId});
+          }
+        });
+      });
+    });
     //Sends a response to the server
     socket.on('guess', function(guess,sessionId,hostid) {
       //Check is the player's guess is in the array

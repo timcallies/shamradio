@@ -1,6 +1,8 @@
 $.get("/scripts/playlistSelect.html", function(data){
   document.getElementById('playlist-select-container').innerHTML=data;
+  presetsLoaded();
 });
+
 
 var selectedPresetId = '1';
 
@@ -26,7 +28,7 @@ function findNameById(id){
   }
 }
 
-function updatePresets(presets) {
+function refreshPresets(presets) {
   $('.playlist').empty()
 
   presets[0].forEach(function(preset) {
@@ -35,7 +37,7 @@ function updatePresets(presets) {
     }
     addPreset('#default-playlists',preset.id, preset.name, preset.description, 'Shamradio');
   });
-  
+
   presets[1].forEach(function(preset) {
     if(preset.description==null){
       preset.description='(No description)';
@@ -43,6 +45,12 @@ function updatePresets(presets) {
     addPreset('#your-playlists',preset.id, preset.name, preset.description, preset.owner);
   });
 }
+
+socket.on('presetsavedresponse',function(presets,id) {
+  refreshPresets(presets);
+  selectedPresetId = id;
+  $('.select-playlist').text(findNameById(id));
+});
 
 function closeSelectScreen() {
   var element = $('.playlist-option-selected');
@@ -88,9 +96,10 @@ function addPreset(div,id,name,description,owner){
 
   if(prefix=='my'){
     $('#description-my-'+id).append('<img src="/img/pencil.png"/>');
-    $('#playlist-group-'+prefix+'-'+id).append('<form class="buttons-save-delete">');
-    $('#playlist-group-'+prefix+'-'+id).find('.buttons-save-delete').append($('<button>').text('Delete').click(function(){
-
+    $('#playlist-group-'+prefix+'-'+id).append('<span class="buttons-save-delete">');
+    $('#playlist-group-'+prefix+'-'+id).find('.buttons-save-delete').append($('<button id="deletepreset">').text('Delete').click(function(){
+      socket.emit('deletepreset',getCookie("userSession"),id);
+      $(this).parent().parent().parent().remove();
     }));
     $('#description-my-'+id).click(function() {
       var thisDescription = $(this);

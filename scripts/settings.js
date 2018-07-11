@@ -453,10 +453,19 @@ function getQueryFromItem(object,t){
 /***********************************
 *             PRESETS              *
 ***********************************/
+function presetsLoaded() {
+  $(".select-playlist-window").prepend($('<li class = "playlist-option" id="playlist-id-create">'));
+  $('#playlist-id-create').append($('<div class="playlist-name">').text('Create').click(function() {
+    $('.playlist-option-selected').removeClass('playlist-option-selected');
+    $(this).parent().addClass('playlist-option-selected');
+  }));
+}
+
 function savePreset(){
   var presetOptions = getSettings();
   var presetId = selectedPresetId;
   var presetName = $('#preset-name > input').val();
+  $('.select-playlist').text($('#preset-name > input').val());
   sendPreset(presetOptions, presetId, presetName);
 }
 
@@ -470,21 +479,8 @@ function presetResponse(options, isOwner){
   }
 }
 
-function presetSaved(presets,thisName) {
-  updatePresets(presets);
-  $('.select-playlist').text(thisName);
-}
-
 function updatePresets(presets){
-  $('#settings-preset').empty();
-  $('#settings-preset').append('<option value="1">Music (Popular)</option>');
-  $('#settings-preset').append('<option value="2">Music (Spotify)</option>');
-  $('#settings-preset').append('<option value="3">Anime (Anilist)</option>');
-  presets.forEach(preset => {
-    var thisPreset =  $('<option value="'+preset.id+'">').text(preset.name);
-    $('#settings-preset').append(thisPreset);
-  });
-  $('#settings-preset').append('<option value="create">Custom...</option>');
+  refreshPresets(presets)
 }
 
 function refreshSettings(hostsettings) {
