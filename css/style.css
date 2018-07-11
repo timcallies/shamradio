@@ -21,7 +21,17 @@ button[disabled]{
   color: #c9c9c9;
 }
 
+.row {
+    display: flex;
+}
 
+.column {
+    flex: 50%;
+    margin: 10px;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}
 
 input {
   box-sizing: border-box;
@@ -77,6 +87,8 @@ a#sitename {
   color: inherit;
   text-decoration: inherit;
   margin-top:-10px;
+  display: flex;
+  align-items: center;
 }
 
 .hidden {

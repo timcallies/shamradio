@@ -25,7 +25,7 @@ function hostLocal() {
 }
 
 function playLocal() {
-  $('#button-group').fadeOut(50);
+  $('#gameselect').fadeOut(50);
   setTimeout(function() {
     $('#host-input').fadeIn(50);
     $('#mainscreen-bg').fadeIn(50);
