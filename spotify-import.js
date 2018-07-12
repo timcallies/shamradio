@@ -1,5 +1,5 @@
-const baseUrl="http://www.shamradio.com";
-//const baseUrl="http://10.0.0.53";
+//const baseUrl="http://www.shamradio.com";
+const baseUrl="http://10.0.0.53";
 var fetch = require('isomorphic-fetch');
 var SpotifyWebApi = require('spotify-web-api-node');
 var MongoClient = require('mongodb').MongoClient;
@@ -234,8 +234,19 @@ function addSongFromSpotify(song) {
 
 function findPreviewFromItunes(song){
   //Find the artist ID
+  var shortName=song.name;
+  if(song.name.indexOf('Remaster')>0)
+  {
+    if(song.name.indexOf('-')>0) {
+      shortName = song.name.split('-')[0].trim();
+    }
+    if(song.name.indexOf('(')>0) {
+      shortName = song.name.split('(')[0].trim();
+    }
+  }
+
   try {
-    var thisUrl = 'https://itunes.apple.com/search?term='+encodeURI((song.name.split(' ').join('+')))+'&entity=musicTrack&limit=20';
+    var thisUrl = 'https://itunes.apple.com/search?term='+encodeURI(((shortName.replace(/[^0-9a-z ]/gi, '')).split(' ').join('+')))+'&entity=musicTrack&limit=20';
     fetch(thisUrl).then(response => {
       if(response.status>=400)
       {
