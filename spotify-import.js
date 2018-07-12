@@ -182,6 +182,7 @@ function getTopTracks(thisUsername, offset) {
         songCollection.findOne({songid: thisSongid}).then(function(colldata, err){
           if (err) console.log(err);
           if(colldata==null) {
+            console.log(track);
             addSongFromSpotify(track);
           }
         });
