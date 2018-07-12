@@ -1,5 +1,5 @@
-//const baseUrl="http://www.shamradio.com";
-const baseUrl="http://10.0.0.53";
+const baseUrl="http://www.shamradio.com";
+//const baseUrl="http://10.0.0.53";
 var fetch = require('isomorphic-fetch');
 var SpotifyWebApi = require('spotify-web-api-node');
 var MongoClient = require('mongodb').MongoClient;
