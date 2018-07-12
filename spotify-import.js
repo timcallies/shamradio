@@ -153,6 +153,7 @@ function getSavedTracks(thisUsername, thisOffset) {
           songCollection.findOne({songid: ("spfy#"+track.track.id)}).then(function(colldata, err){
             if (err) console.log(err);
             if(colldata==null) {
+              console.log(track);
               songImportStack.push(track.track);
             }
           });
