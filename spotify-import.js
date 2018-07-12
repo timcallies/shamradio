@@ -1,4 +1,6 @@
-const baseUrl="http://www.shamradio.com";
+//const baseUrl="http://www.shamradio.com";
+const baseUrl="http://10.0.0.53";
+var fetch = require('isomorphic-fetch');
 var SpotifyWebApi = require('spotify-web-api-node');
 var MongoClient = require('mongodb').MongoClient;
 var configs = require('./configs.js');
@@ -153,7 +155,6 @@ function getSavedTracks(thisUsername, thisOffset) {
           songCollection.findOne({songid: ("spfy#"+track.track.id)}).then(function(colldata, err){
             if (err) console.log(err);
             if(colldata==null) {
-              console.log(track);
               songImportStack.push(track.track);
             }
           });
@@ -204,7 +205,6 @@ function addSongFromSpotify(song) {
       song.artists.forEach(function(artist){
         alternateArtists.push(artist.name);
       });
-
       var song = {
         songid: ("spfy#"+song.id),
         name: song.name,
@@ -227,9 +227,57 @@ function addSongFromSpotify(song) {
       //findDuplicateSongs(song);
       lastfm.updateSong(song);
     }else{
-      console.log(song.name+" could not be added, no URL found!");
+      itunesImportStack.push(song);
     }
   } catch(err) {console.log("An error occurred while adding a song: "+err);}
+}
+
+function findPreviewFromItunes(song){
+  //Find the artist ID
+  try {
+    var thisUrl = 'https://itunes.apple.com/search?term='+encodeURI((song.name.split(' ').join('+')))+'&entity=musicTrack&limit=20';
+    fetch(thisUrl).then(response => {
+      if(response.status>=400)
+      {
+        return null;
+      }
+      response.json().then(json => {
+        var foundSong=false;
+        json.results.forEach(result => {
+          if (result.artistName == song.artists[0].name && !foundSong){
+            foundSong=true;
+
+            //Adds a new song
+            var alternateArtists = [];
+            song.artists.forEach(function(artist){
+              alternateArtists.push(artist.name);
+            });
+
+            var newSong = {
+              songid: ("spfy#"+song.id),
+              name: song.name,
+              album: song.album.name,
+              artist: song.artists[0].name,
+              coverart: song.album.images[0].url,
+              url: result.previewUrl,
+              popularity: song.popularity,
+              year: parseInt(song.album.release_date.split('-')[0]),
+              tags: "Music",
+              type: "audio",
+              alternateTitles: [],
+              alternateAlbums: [],
+              alternateArtists: [alternateArtists],
+              alternateIds: [],
+              wins: 1.0,
+              losses: 1.0,
+              ratio: 1.0,
+            };
+            lastfm.updateSong(newSong);
+          }
+        });
+      });
+    });
+  } catch(err) {console.log('Could not add song from itunes: '+err);}
 }
 
 function getTopPlaylists() {
@@ -262,6 +310,7 @@ function addSongsFromPlaylist(id, offset) {
 var spotifyImportStack = [];
 var spotifyPlaylistStack = [];
 var songImportStack = [];
+var itunesImportStack = [];
 
 //Imports from Spotify
 setInterval(function(){
@@ -280,3 +329,9 @@ setInterval(function(){
     addSongFromSpotify(songImportStack.pop());
   }
 },500);
+
+setInterval(function(){
+  if(itunesImportStack.length>0){
+    findPreviewFromItunes(itunesImportStack.pop());
+  }
+},3000);

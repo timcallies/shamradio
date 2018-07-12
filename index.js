@@ -13,7 +13,9 @@ var _ = require('lodash');
 var md5 = require('md5');
 var configs = require('./configs.js');
 var url = configs.getMongoURL();
-const baseUrl="http://www.shamradio.com";
+//const baseUrl="http://www.shamradio.com";
+const baseUrl="http://10.0.0.53";
+
 var favicon = require('serve-favicon');
 var update = require('./update.js');
 
