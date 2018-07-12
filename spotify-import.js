@@ -195,35 +195,39 @@ function getTopTracks(thisUsername, offset) {
 }
 
 function addSongFromSpotify(song) {
-  if(song.preview_url!=null) {
-    //Adds a new song
-    var alternateArtists = [];
-    song.artists.forEach(function(artist){
-      alternateArtists.push(artist.name);
-    });
+  try {
+    if(song.preview_url!=null) {
+      //Adds a new song
+      var alternateArtists = [];
+      song.artists.forEach(function(artist){
+        alternateArtists.push(artist.name);
+      });
 
-    var song = {
-      songid: ("spfy#"+song.id),
-      name: song.name,
-      album: song.album.name,
-      artist: song.artists[0].name,
-      coverart: song.album.images[0].url,
-      url: song.preview_url,
-      popularity: song.popularity,
-      year: parseInt(song.album.release_date.split('-')[0]),
-      tags: "Music",
-      type: "audio",
-      alternateTitles: [],
-      alternateAlbums: [],
-      alternateArtists: [alternateArtists],
-      alternateIds: [],
-      wins: 1.0,
-      losses: 1.0,
-      ratio: 1.0,
-    };
-    //findDuplicateSongs(song);
-    lastfm.updateSong(song);
-  }
+      var song = {
+        songid: ("spfy#"+song.id),
+        name: song.name,
+        album: song.album.name,
+        artist: song.artists[0].name,
+        coverart: song.album.images[0].url,
+        url: song.preview_url,
+        popularity: song.popularity,
+        year: parseInt(song.album.release_date.split('-')[0]),
+        tags: "Music",
+        type: "audio",
+        alternateTitles: [],
+        alternateAlbums: [],
+        alternateArtists: [alternateArtists],
+        alternateIds: [],
+        wins: 1.0,
+        losses: 1.0,
+        ratio: 1.0,
+      };
+      //findDuplicateSongs(song);
+      lastfm.updateSong(song);
+    }else{
+      console.log(song.name+" could not be added, no URL found!");
+    }
+  } catch(err) {console.log("An error occurred while adding a song: "+err);}
 }
 
 function getTopPlaylists() {
