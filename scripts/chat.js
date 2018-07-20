@@ -13,7 +13,7 @@ function chatContainer(container,socket,hostsocket) {
   '</form>'+
   '<div id="exit-chat" class="exit-chat">';
   rescalePage();
-
+  consoleMessage('Type !help for help, or !settings to see the current settings.');
 
   setInterval(function(){
     if(!hovering)
@@ -69,7 +69,7 @@ function chatContainer(container,socket,hostsocket) {
 }
 
 function consoleMessage(msg){
-  var thisText = $('<li>').text(msg);
+  var thisText = $('<li class="console-messages">').text(msg);
   $('#chat-messages').append(thisText);
   if(!hovering) {
     $('#chat-messages').css("display","flex");

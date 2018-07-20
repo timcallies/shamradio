@@ -623,7 +623,16 @@ MongoClient.connect(url, function(err, db) {
       if(!(hostid in hostlist)) return;
       if(!(sessionId in playerlist)) return;
       if(playerlist[sessionId].hostid!=hostid) return;
-      io.of('/'+hostid).emit('chat message', playerlist[sessionId].username, msg);
+
+      if(msg == '!settings') {
+        socket.emit('sendSettings', hostlist[hostid].options);
+      }
+
+      else if (msg == '!help') {
+        socket.emit('consolemessage', "God wwest youw soul.");
+      }
+
+      else io.of('/'+hostid).emit('chat message', playerlist[sessionId].username, msg);
     });
 
     socket.on('heartbeat', function(sessionId){

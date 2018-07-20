@@ -321,6 +321,9 @@ function getSettingsAsText(options) {
   if (options.mode=='music-mode' && options.tags.length != genres.length) {
     output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));
   }
+  if (options.mode=='anime-mode' && options.tags.length != genresAnime.length) {
+    output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));
+  }
 
   return output;
 }

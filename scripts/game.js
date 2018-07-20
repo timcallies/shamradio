@@ -156,7 +156,13 @@ function updatePlayerList(hostplayerlist) {
   });
 }
 
+socket.on('sendSettings', function(options){
+  consoleMessage(getSettingsAsText(options));
+});
 
+socket.on('consolemessage', function(msg){
+  consoleMessage(msg);
+});
 
 //All the code relating to host communication
 function connectToHost(hostid) {
