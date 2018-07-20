@@ -52,6 +52,10 @@ var filterButton;
 
 function settingsContainer(container) {
   $.get("/scripts/settings.html", function(data){
+    $.get("/scripts/playlistSelect.html", function(data){
+      document.getElementById('playlist-select-container').innerHTML=data;
+      presetsLoaded();
+    });
     document.getElementById(container).innerHTML=data;
 
     genres.forEach(function(genre){

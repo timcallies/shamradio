@@ -21,17 +21,33 @@
         <input id="password" placeholder="Password" type="password" autocomplete="on" autocapitalize="off"/><br>
         <button onclick="login()" class="button-cool">Login</button>
       </div>
-      <h1>Register</h1>
+
       <div id="register" action="">
+        <h1>Register</h1>
         <input id="r-username" placeholder="Username" autocomplete="on" autocapitalize="off"/><br>
         <input id="r-password" type="password"  placeholder="Password" autocomplete="on" autocapitalize="off"/><br>
         <input id="r-password-2" type="password"  placeholder="Repeat Password" autocomplete="on" autocapitalize="off"/><br>
         <button onclick="register()" class="button-cool">Register</button>
       </div>
+
+      <div id="nickname" action="">
+        <h1>Play as Guest</h1>
+        <input id="n-name" placeholder="Nickname" autocomplete="on" autocapitalize="off"/><br>
+        <button onclick="nickname()" class="button-cool">Play</button>
+      </div>
     </div>
     <div id="mainscreen-bg"></div>
     <script>
       var socket = io();
+      var url = new URL(window.location.href);
+      var redirect = url.searchParams.get('r');
+
+      if (redirect==null) {
+        $('#nickname').css('display','none');
+      }
+      else {
+        $('#register').css('display','none');
+      }
 
       function login() {
         socket.emit('login',$('#username').val(),$('#password').val());
@@ -44,9 +60,23 @@
         }
       }
 
+      function nickname() {
+        var nickname = $('#n-name').val();
+        if (nickname.trim()=='') {
+          nickname = 'Guest';
+        }
+        window.location.href = ('/game/'+redirect+'?name='+nickname);
+      }
+
       socket.on('loginresponse', function(userSession){
         document.cookie = "userSession="+userSession;
-        window.location.href = "/account";
+
+        if(redirect==null) {
+          window.location.href = "/account";
+        }
+        else {
+          window.location.href = "/game/"+redirect;
+        }
       });
 
       socket.on('errormessage', function(msg){

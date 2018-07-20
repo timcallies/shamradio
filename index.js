@@ -96,6 +96,7 @@ MongoClient.connect(url, function(err, db) {
   //Connects a player if they use the URL to play
   app.get('/game/:hostid', function(req, res) {
     var sessionId = createSessionID(req, res);
+    var nickname = req.query.name;
     if(!(req.params.hostid in hostlist)) {
       res.redirect('/');
       return;
@@ -125,24 +126,29 @@ MongoClient.connect(url, function(err, db) {
       var thisServer = hostlist[hostid];
 
       var thisPlayer;
-      if(account==null){
-        thisServer.connectedplayers++;
-        thisPlayer = new Player(("Player "+thisServer.connectedplayers),hostid,sessionId);
+      if(account==null && nickname == null){
+        res.redirect('/login?r='+req.url.split('/').pop());
       }
       else {
+        if(nickname == null) {
+          thisPlayer = new Player(account.username,hostid,sessionId);
+          thisPlayer.userSession=userSession;
+        }
+        else {
+          if(nickname.length>20) {nickname = nickname.substring(0,20);}
+          thisPlayer = new Player(generateGuestName(thisServer.playerlist,nickname),hostid,sessionId);
+        }
+
+        playerlist[sessionId]=thisPlayer;
         thisServer.connectedplayers++;
-        thisPlayer = new Player(account.username,hostid,sessionId);
-        thisPlayer.userSession=userSession;
+
+        thisServer.playerlist.push(thisPlayer);
+
+        io.of('/'+hostid).emit('consolemessage', (thisPlayer.username+ " joined the game."));
+        io.of('/'+hostid).emit('sendPlayerList',getPlayerList(hostid));
+        io.of('/servers').emit('updateserverlist', shortServerList());
+        res.redirect('/game');
       }
-
-      playerlist[sessionId]=thisPlayer;
-
-      thisServer.playerlist.push(thisPlayer);
-
-      io.of('/'+hostid).emit('consolemessage', (thisPlayer.username+ " joined the game."));
-      io.of('/'+hostid).emit('sendPlayerList',getPlayerList(hostid));
-      io.of('/servers').emit('updateserverlist', shortServerList());
-      res.redirect('/game');
     });
   });
 
@@ -282,7 +288,10 @@ MongoClient.connect(url, function(err, db) {
     socket.on('register', function(username,password){
       if (username.length<3 || username.length>20
         || password.length <5 || password.length >20) {
-        socket.emit('errormessage', "Password must be between 6-20 characters.");
+        socket.emit('errormessage', "Username/Password must be between 6-20 characters.");
+      }
+      if (username.indexOf('(')>=0) {
+        socket.emit('errormessage', "Username may not contain parenthesis.");
       }
       else
       {
@@ -396,7 +405,7 @@ MongoClient.connect(url, function(err, db) {
             var thisPlayer;
             if(account==null){
               thisServer.connectedplayers++;
-              thisPlayer = new Player(("Player "+thisServer.connectedplayers),hostid,sessionId);
+              thisPlayer = new Player(("(Host)"),hostid,sessionId);
             }
             else {
               thisServer.connectedplayers++;
@@ -662,7 +671,7 @@ MongoClient.connect(url, function(err, db) {
         var thisPlayer;
         if(account==null){
           thisServer.connectedplayers++;
-          thisPlayer = new Player(("Player "+thisServer.connectedplayers),hostid,sessionId);
+          thisPlayer = new Player((generateGuestName(thisServer.playerlist,'Guest')),hostid,sessionId);
         }
         else {
           thisServer.connectedplayers++;
@@ -1313,4 +1322,22 @@ String.prototype.hashCode = function(){
         hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
+}
+
+function generateGuestName(thisPlayerlist, name) {
+  var keepTrying=true;
+  var count = 1;
+  var guestName = name + ' ('+count+')';
+  while(keepTrying) {
+    guestName = name + ' ('+count+')';
+    keepTrying=false;
+    thisPlayerlist.forEach(player => {
+      var thisName = player.username;
+      if(thisName == guestName) {
+        count++;
+        keepTrying = true;
+      }
+    });
+  }
+  return guestName;
 }

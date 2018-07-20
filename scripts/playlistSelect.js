@@ -1,7 +1,4 @@
-$.get("/scripts/playlistSelect.html", function(data){
-  document.getElementById('playlist-select-container').innerHTML=data;
-  presetsLoaded();
-});
+
 
 
 var selectedPresetId = '1';

@@ -1,5 +1,10 @@
 var socket = io();
 
+$.get("/scripts/playlistSelect.html", function(data){
+  document.getElementById('playlist-select-container').innerHTML=data;
+  presetsLoaded();
+});
+
 document.getElementById("mainscreen-bg").setAttribute("style", "display: none;");
 
 //Sets the account button if the user is logged in
@@ -83,8 +88,8 @@ function updatePresets(presets) {
 }
 
 function joinServer(hostid) {
-  console.log(hostid);
-  socket.emit('joinserverrequest',getCookie('sessionId'),getCookie('userSession'),hostid,$('#server-input-'+hostid).val());
+  window.location.href = '/game/'+hostid;
+  //socket.emit('joinserverrequest',getCookie('sessionId'),getCookie('userSession'),hostid,$('#server-input-'+hostid).val());
 }
 
 function getCookie(cname) {
