@@ -356,18 +356,19 @@ function addShow(data) {
 
           function getOped(oped,num) {
             var openings=body.split('<div class="theme-songs js-theme-songs ending">')[num].split('<span class="theme-song">');
+            var tags = data.genres;
+            tags.push('Other');
 
             for (var i=1; i< openings.length; i++) {
               op = openings[i].split("</span>")[0];
               var number = op.split("&quot;")[0].split("#").join('').split(":").join('').trim();
               var name = op.split("&quot;")[1].trim();
               var artist = op.split("&quot;")[2].split(" by ")[1].split(" (ep")[0].trim();
-              var tags = data.genres;
               var studio = undefined;
               try {
                 studio = data.studios.edges[0].node.name;
               } catch(err) {}
-              tags.push('Other');
+
 
               //Create the song object
               song = {
