@@ -1,5 +1,7 @@
 document.getElementById('begingame').disabled = true;
 
+var pageMaxHeight = 0;
+
 const gameTime=20;
 const maxRounds=10;
 
@@ -376,8 +378,18 @@ function rescalePage() {
               ? window.innerWidth
               : document.documentElement.offsetWidth;
 
+
+
   //Mobile page configuration
   if((height > width)) {
+    pageMaxHeight = height-65;
+
+    //Scale the title
+    if (width < 1000) {
+      var scale = (width/1000.0);
+      $('#hostnames').css('transform',('scale('+scale+')'));
+    }
+
     if(!mobilePage)
     {
       mobilePage=true;
@@ -396,11 +408,13 @@ function rescalePage() {
     $('#user-container').css('transform',("scale("+(height-56)/600.0+")"));
     $('#user-container').css('width',((width-60)/((height-56)/600.0)+"px"));
     $(".content").css("height", "calc(100vh - 56px)");
+
   }
 
   //Desktop page configuration
   if((height < width)) {
-    if(width>500)
+    pageMaxHeight = height;
+    if(width>600)
     {
       if(mobilePage) {
         mobilePage = false;
@@ -418,19 +432,35 @@ function rescalePage() {
       }
       //if(isDeviceMobile && portraitMode) {return;}
 
-      else if (height<600)
+      if (height<600)
       {
         document.body.style.transform = 'scale(' + height/600 + ')';
         document.body.style.height = '600px';
         document.body.style.width = 100/(height/600)+'%';
+
+        //Scale the title
+        if ((width-350*(height/600)) < 1000*(height/600)) {
+          console.log()
+          var scale = ((width-350*(height/600)) / (1000*(height/600)));
+          $('#hostnames').css('transform',('scale('+scale+')'));
+        }
+        else $('#hostnames').css('transform',('scale(1)'));
       }
       else {
         document.body.style.transform = 'scale(1)';
         document.body.style.height = '100%';
         document.body.style.width = '100%';
+
+        //Scale the title
+        if ((width-350) < 1000) {
+          var scale = ((width-350)/1000.0);
+          $('#hostnames').css('transform',('scale('+scale+')'));
+        }
+        else $('#hostnames').css('transform',('scale(1)'));
       }
     }
   }
+  $('#possiblechoices').css('max-height',pageMaxHeight+"px");
 }
 
 var mobilePage = false;

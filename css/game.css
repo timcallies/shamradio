@@ -168,6 +168,11 @@ div#endScreen{
 
 div#hostinfo{
   margin-bottom: 30px;
+  width: 1000px;
+}
+
+div#hosturl{
+  width: 1000px;
 }
 
 div#hostQR {
@@ -337,7 +342,7 @@ div#round-text {
 }
 
 .chat-container {
-  width: 400px;
+  width: 400px !important;
   background: white;
   position: fixed;
   bottom: 0px;

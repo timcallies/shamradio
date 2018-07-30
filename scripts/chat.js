@@ -49,10 +49,7 @@ function chatContainer(container,socket,hostsocket) {
     $('#exit-chat').fadeOut(500);
   });
 
-  $('#chat-form').hover(function() {
-    $('#chat-messages').css("height", "400px");
-    $('#exit-chat').fadeIn(500);
-  });
+
 
 
   hostsocket.on('chat message', function(name,msg){
