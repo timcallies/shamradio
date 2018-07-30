@@ -47,7 +47,7 @@ function updateGuessChoices(tags,query) {
     $("#possiblechoices").empty();
     $("#possiblechoices").css("display","block");
     for(var i=0; i<tags.length; i++) {
-      $('#possiblechoices').append($('<li class="choice" onclick="submitGuess(\''+tags[i].replace("'","\\'")+'\')">').text(tags[i]));
+      $('#possiblechoices').prepend($('<li class="choice" onclick="submitGuess(\''+tags[i].replace("'","\\'")+'\')">').text(tags[i]));
     }
   }
 }
