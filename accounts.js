@@ -1,7 +1,7 @@
 var configs = require('./configs.js');
 var url = configs.getMongoURL();
 var md5 = require('md5');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-nodejs');
 var MongoClient = require('mongodb').MongoClient;
 var db;
 var users;
