@@ -102,7 +102,7 @@ MongoClient.connect(url, function(err, db) {
       return;
     }
 
-    else if(hostlist[req.params.hostid].playerlist.length > 32) {
+    else if(hostlist[req.params.hostid].playerlist.length > 32 || !(hostlist[req.params.hostid].canjoin)) {
       res.redirect('/');
       return;
     }
