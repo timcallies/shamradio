@@ -1,7 +1,9 @@
 var fetch = require('isomorphic-fetch');
 var configs = require('./configs.js');
+var accounts = require('./accounts.js');
 var url = configs.getMongoURL();
 var db;
+var users;
 var animeTestCollection;
 var animeCollection;
 var mostPopular;
@@ -23,7 +25,8 @@ module.exports = {
     addShow: addShow,
     getTopShows: getTopShows,
     getAnilist: getAnilist,
-    updateShow: updateShow
+    updateShow: updateShow,
+    getTokenFromCode: getTokenFromCode
 };
 
 function getMostPopularAnime() {
@@ -450,6 +453,83 @@ function addShow(data) {
 }
 // Define our query variables and values that will be used in the query request
 
+function getTokenFromCode(userSession,code) {
+  var url = 'https://anilist.co/api/v2/oauth/token';
+  var options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({
+      'grant_type': 'authorization_code',
+      'client_id': '1003',
+      'client_secret': 'DQmah8pDuvEOD6SXhm4EJPvRhPys7NnR1PhrL6Bs',
+      'redirect_uri': 'http://www.shamradio.com/anilist', // http://example.com/callback
+      'code': code // The Authorization Code received previously
+    })
+  };
+
+  fetch(url, options).then(handleResponse)
+                     .then(handleData)
+                     .catch(handleError);
+
+  function handleResponse(response) {
+      return response.json().then(function (json) {
+        return response.ok ? json : Promise.reject(json);
+      });
+  }
+
+  function handleData(data) {
+    var url= 'https://graphql.anilist.co';
+    var query = `
+    {
+      Viewer {
+        name
+      }
+    }`
+    var options = {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + data.access_token,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        'query': query
+      })
+    };
+
+    fetch(url, options).then(handleResponse)
+                       .then(handleData)
+                       .catch(handleError);
+
+    function handleResponse(response) {
+        return response.json().then(function (json) {
+          return response.ok ? json : Promise.reject(json);
+        });
+    }
+
+    function handleData(data) {
+      accounts.checkUserSession(userSession).then(account => {
+        try {
+          account.anilistAccount = data.data.Viewer.name;
+          users.save(account);
+          getAnilist(account.username, account.anilistAccount)
+        }
+        catch(err){}
+      });
+    }
+
+    function handleError(error) {
+        console.error(error);
+    }
+  }
+
+  function handleError(error) {
+      console.error(error);
+  }
+}
 
 var opStack = [];
 var anilisti = 0;

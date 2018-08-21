@@ -228,9 +228,10 @@ MongoClient.connect(url, function(err, db) {
         '&redirect_uri=' + encodeURIComponent(baseUrl+"/spotify"));
     else{
       spotify.addUser(req.cookies.userSession,query.code);
-      res.redirect('/account');
+      setTimeout(function(){
+        res.redirect('/account');
+      },1000);
     }
-
   });
 
   app.get('/anilist', function(req, res) {
@@ -240,7 +241,10 @@ MongoClient.connect(url, function(err, db) {
       +encodeURIComponent(baseUrl+'/anilist')
       +'&response_type=code');
     else{
-      res.redirect('/account');
+      anilist.getTokenFromCode(req.cookies.userSession,query.code);
+      setTimeout(function(){
+        res.redirect('/account');
+      },1000);
     }
   });
 

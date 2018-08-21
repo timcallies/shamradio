@@ -1,5 +1,6 @@
 var socket = io();
 var currentwindow = null;
+
 //1 = online, 2 = local
 
 if(getCookie('lastPlayed')=='anime'){
@@ -13,6 +14,7 @@ else {
 
 socket.on('albumartresponse', function(covers){
   for(var i=0; i<covers.length; i++) {
+    $('#albumartscroll').animate({opacity: 1});
     console.log(covers[i]);
     $('#albumartscroll').append(($('<img class="albumart">').css({
       'background-image': "url('"+covers[i]+"')",
