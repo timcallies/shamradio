@@ -35,8 +35,9 @@ videoPlayer.prototype.play = function(name, album, artist, coverArt, url, type) 
       element = document.getElementById("musicWindow");
       playMusic(url,coverArt);
     }
-    
+
     function playvideo(src, type) {
+      document.cookie = "lastPlayed=anime";
       element.setAttribute("style", "display: block;");
       element.type = type;
       element.src=src;
@@ -67,6 +68,7 @@ videoPlayer.prototype.play = function(name, album, artist, coverArt, url, type) 
 
     //When a music file is played
     function playMusic(url,coverArt){
+      document.cookie = "lastPlayed=music";
       element.setAttribute("src", coverArt);
       element.setAttribute("style", "display: block;");
       audio = new Audio(url);

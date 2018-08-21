@@ -5,6 +5,14 @@
       @import url("/css/style.css");
       @import url("/css/home.css");
 
+      li.account-option {
+        list-style-type: circle;
+        background: none;
+        display: list-item;
+        overflow: visible;
+        margin-left: 15px;
+      }
+
       .accountInfo{
         text-align: left;
         padding-left: 2em;
@@ -21,13 +29,45 @@
         text-align: center;
       }
 
-      h2{
-        font-style: italic;
-        padding-left: -1em;
-        line-height: 2.5;
-        font-weight: normal;
-        font-size: 1em;
-        margin: 0px;
+      #tabarea {
+
+        width: 80%;
+        margin: auto;
+        margin-top: 2em;
+      }
+
+      .tab {
+        overflow: hidden;
+
+      }
+
+      .tabcontent {
+        background-color: #f1f1f1;
+        color: #222222;
+        padding: 10px;
+      }
+
+      .tab button {
+        float: left;
+        background-color: gray;
+      }
+
+      .tab button.active {
+        background-color: #f1f1f1;
+      }
+
+      .has-account {
+        display: none;
+        padding: 20px;
+        border: #cccccc solid 2px;
+        border-radius: 4px;
+      }
+
+      .no-account {
+        padding: 20px;
+        color: #aaaaaa;
+        border: #cccccc solid 2px;
+        border-radius: 4px;
       }
 
 
@@ -38,37 +78,76 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <body>
     <div id="header">
-      <a id="sitename" href="/"><img id="logo-image" src="/img/logo.png" height="70px"/>Shamradio</a>
-      <button id="logout" class ="login-button" onclick="logout()">Logout</button>
-    </div>
-    <div id="mainscreen">
-      <div class="accountInfo">
-        <h1><div id='username' style="display:inline-block;" ></div>- Account Settings</h1>
-      <br>
-
-      <h2>Connected Accounts:</h2>
-      <div style="display:inline-flex;">
-        <img src="/img/spotify.png" height="56px"/>
-        <button id="spotify-button" href="#" onClick="window.open('/spotify','Login','resizable,height=400,width=370'); document.getElementById('spotify-button').disabled=true; return false;">Connect</button>
-      </div><br>
-
-      <div style="display:inline-flex;">
-        <img src="/img/anilist.png" height="56px"/>
-        <button id="anilist-connect-button" href="#" onClick="$('#anilist-connect').fadeIn(200);">Connect</button>
-      </div><br>
-      <div id='anilist-connect' style="display:none;">
-        <div id="anilist-setup" style="display:inline-flex; width:80%;">
-          <input id="anilist-name" placeholder="Anilist" autocomplete="off" style="width:10px; flex-grow:1;"/>
-          <button id="anilist-button" onclick="importAnilist()">Import</button>
+      <a id="sitename" href="/"><img id="logo" src="/img/logo.png" height="50px"/>Shamradio</a>
+      <div style = "float:right;display:flex;">
+        <div class = 'dropdown'>
+          <div class = 'dropbtn'> About</div>
+          <div class="dropdown-content">
+            <a href="https://github.com/timcallies/shamradio">GitHub</a>
+            <a href="https://twitter.com/sirhatsley?lang=en">Twitter</a>
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin-bottom: -5px;">
+              <input type="hidden" style="height:auto; border-bottom:none;" name="cmd" value="_s-xclick">
+              <input type="hidden" style="height:auto; border-bottom:none;" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+              ">
+              <input type="image" style="height:auto; border-bottom:none;" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+              <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+            </form>
+          </div>
         </div>
-        <button id="anilist-update" onclick="updateAnilist()" style="margin-top:10px;" disabled>Change/Update</button>
-        <button onclick="window.location.href = '/addmusic';" style="margin-left:10px;">Find Songs</button><br>
+        <button id="logout" class ="login-button" onclick="logout()">Logout</button>      </div>
+    </div>
+
+    <div id="mainscreen">
+      <div class='mainscreenheader'>
+        <div id='username' style="display:inline-block;" ></div>- Account Settings
       </div>
+      <div id='tabarea'>
+        <!-- Tab links -->
+        <div class='tab'>
+          <button id='defaultOpen' class='tablinks' onclick='openTab(event, "Spotify")'><img src="/img/spotify.png" height="30px"/></button>
+          <button class='tablinks' onclick='openTab(event, "Anilist")'><img src="/img/anilist.png" height="30px"/></button>
+        </div>
+
+        <!-- Tab Content-->
+
+        <div id='Spotify' class='tabcontent'>
+          <div class='no-account'>
+            You do not have a Spotify account associated with Shamradio.
+            <br><a id='spotify-button' href='/spotify' class= 'linktext'>Connect your account?</a>
+          </div>
+          <div class='has-account'>
+            <b>Connected account:</b> <a class='linktext' id='spotify-name'> </span>
+            <ul style='margin-top:20px;'>
+              <li class='account-option'><a class= 'linktext'>Update your playlist</a></li>
+              <li class='account-option'><a onclick='removeSpotify()' class= 'linktext'>Remove this account</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div id='Anilist' class='tabcontent'>
+          <div class='no-account'>
+            You do not have an Anilist account associated with Shamradio.
+            <br><a href='/anilist' class= 'linktext'>Connect your account?</a>
+          </div>
+          <div class='has-account'>
+            <b>Connected account:</b> <a class='linktext' id='anilist-name'> </span>
+            <ul style='margin-top:20px;'>
+              <li class='account-option'><a class= 'linktext'>Update your list</a></li>
+              <li class='account-option'><a href='/addmusic' class= 'linktext'>Find WEBMs for the Shamradio database</a></li>
+              <li class='account-option'><a onclick='removeAnilist()' class= 'linktext'>Remove this account</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:inline-flex;">
+      </div><br>
     </div>
   </div>
   <div id="mainscreen-bg"></div>
   <script>
     var socket = io();
+    document.getElementById("defaultOpen").click();
     document.getElementById('mainscreen').setAttribute("style", "display: none;");
     document.getElementById('logout').setAttribute("style", "display: inline-block;");
 
@@ -78,17 +157,17 @@
       document.getElementById('mainscreen').setAttribute("style", "display: block;");
       $('#username').text(username);
       if (anilistAccount!=undefined) {
-        $("#anilist-name").val(anilistAccount);
-        $("#anilist-name").prop('disabled', true);
-        $("#anilist-button").prop('disabled', true);
-        $("#anilist-update").prop('disabled', false);
+        $("#anilist-name").text(anilistAccount);
+        $("#anilist-name").attr('href','https://anilist.co/user/'+anilistAccount);
+        $('#Anilist>.no-account').css({display: 'none'});
+        $('#Anilist>.has-account').css({display: 'block'});
       }
-    });
 
-    socket.on('importanilistresponse',function(){
-      $("#anilist-name").prop('disabled', true);
-      $("#anilist-button").prop('disabled', true);
-      $("#anilist-update").prop('disabled', false);
+      if (spotifyAccount!=undefined) {
+        $("#spotify-name").text(spotifyAccount);
+        $('#Spotify>.no-account').css({display: 'none'});
+        $('#Spotify>.has-account').css({display: 'block'});
+      }
     });
 
     function logout(){
@@ -97,14 +176,16 @@
       window.location.href = "/";
     }
 
-    function importAnilist(){
-      socket.emit('importanilistaccount',$('#anilist-name').val(),getCookie('userSession'));
+    function removeAnilist() {
+      socket.emit('disconnect-anilist', getCookie('userSession'));
+      $('#Anilist>.no-account').css({display: 'block'});
+      $('#Anilist>.has-account').css({display: 'none'});
     }
 
-    function updateAnilist() {
-      $("#anilist-name").prop('disabled', false);
-      $("#anilist-button").prop('disabled', false);
-      $("#anilist-update").prop('disabled', true);
+    function removeSpotify() {
+      socket.emit('disconnect-spotify', getCookie('userSession'));
+      $('#Spotify>.no-account').css({display: 'block'});
+      $('#Spotify>.has-account').css({display: 'none'});
     }
 
     function getCookie(cname) {
@@ -122,6 +203,27 @@
       }
       return "";
     }
+
+    function openTab(evt, tabName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
 
   </script>
 </html>

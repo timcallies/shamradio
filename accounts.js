@@ -37,7 +37,7 @@ function register(thisUsername,thisPassword) {
       else {
         bcrypt.genSalt(10, function(err, salt) {
           if(err) reject(err);
-          bcrypt.hash(thisPassword, salt, function(err, hash) {
+          bcrypt.hash(thisPassword, salt, null, function(err, hash) {
             if(err) reject(err);
             findNewUserSession().then(function(myUserSession){
               user={

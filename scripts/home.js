@@ -1,11 +1,60 @@
 var socket = io();
+var currentwindow = null;
+//1 = online, 2 = local
+
+if(getCookie('lastPlayed')=='anime'){
+  socket.emit('albumartrequest','anime');
+}
+else {
+  socket.emit('albumartrequest','music');
+}
+
+
+
+socket.on('albumartresponse', function(covers){
+  for(var i=0; i<covers.length; i++) {
+    console.log(covers[i]);
+    $('#albumartscroll').append(($('<img class="albumart">').css({
+      'background-image': "url('"+covers[i]+"')",
+    })));
+  }
+
+  var counter = 0;
+  var limit = 500;
+  setInterval(function(){
+    if(counter>=limit) {
+      counter=0;
+      $('#albumartscroll').append($('.albumart:first-child').detach());
+    }
+    let width = $('.albumart:first-child').width();
+    $('#albumartscroll').css('left',-(width/limit)*counter);
+    counter++;
+  },50);
+
+
+  /*$('.albumart').animate({
+    opacity: 0.1 },
+  {
+    duration: 10000,
+    easing: 'linear',
+    complete: function() {
+      $('.albumart').animate({
+        opacity: 0 },
+      {
+        duration: 10000,
+        easing: 'linear',
+        complete: function() {
+          socket.emit('albumartrequest');
+        }
+      });
+    }
+  });*/
+});
 
 $.get("/scripts/playlistSelect.html", function(data){
   document.getElementById('playlist-select-container').innerHTML=data;
   presetsLoaded();
 });
-
-document.getElementById("mainscreen-bg").setAttribute("style", "display: none;");
 
 //Sets the account button if the user is logged in
 if(getCookie("userSession")==''){
@@ -16,13 +65,28 @@ else {
 }
 
 function playOnline() {
-  $('#gameselect').fadeOut(50);
-  setTimeout(function() {
-    $('#server-browser').fadeIn(50);
-    $('#mainscreen-bg').fadeIn(50);
-  },50),
-  //document.getElementById("server-browser").setAttribute("style", "display: block;");
+  currentwindow=1;
+  $('#button-group').animate({left: '-50%', opacity: '0'});
+  $('#description').animate({height: '1px', opacity: '0'});
+  $('#host-input').css({display: 'none'});
+  $('#server-browser').css({display: 'block'});
+  $('#mainscreen').css({left: '150%', opacity: '0', display: 'block'});
+  $('#mainscreen').animate({left: '50%', opacity: '1'});
   socket.emit('serverrequest');
+}
+
+function goBack() {
+  if (currentwindow ==  1) {
+    $('#button-group').animate({left: '50%', opacity: '1'});
+    $('#mainscreen').animate({left: '150%', opacity: '0'});
+  }
+
+  if (currentwindow ==  2) {
+    $('#button-group').animate({left: '50%', opacity: '1'});
+    $('#mainscreen').animate({left: '-50%', opacity: '0'});
+  }
+  $('#description').css({height:'auto', opacity: '1'})
+  currentwindow=0;
 }
 
 function hostLocal() {
@@ -30,17 +94,26 @@ function hostLocal() {
 }
 
 function playLocal() {
-  $('#gameselect').fadeOut(50);
-  setTimeout(function() {
-    $('#host-input').fadeIn(50);
-    $('#mainscreen-bg').fadeIn(50);
-  },50);
+  currentwindow=2;
+  $('#button-group').animate({left: '150%', opacity: '0'});
+  $('#description').animate({height: '1px', opacity: '0'});
+  $('#server-browser').css({display: 'none'});
+  $('#host-input').css({display: 'block'});
+  $('#mainscreen').css({left: '-50%', opacity: '0', display: 'block'});
+  $('#mainscreen').animate({left: '50%', opacity: '1'});
 }
 
 function connectLocal() {
   var hostid = $('#hostname').val().toUpperCase();
   console.log(hostid);
   socket.emit('joinserverrequest',getCookie('sessionId'),getCookie('userSession'),hostid,'');
+}
+
+function scrollDown() {
+  window.scrollBy({
+    left: 0,
+    top: window.innerHeight,
+    behavior: 'smooth'});
 }
 
 socket.on('createserverresponse', function(){

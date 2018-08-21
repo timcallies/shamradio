@@ -63,7 +63,6 @@ MongoClient.connect(url, function(err, db) {
       console.log(err);
     });*/
 
-
   //Main landing page
   app.get('/', function(req,res){
     if(checkSessionID(req)) {
@@ -229,9 +228,20 @@ MongoClient.connect(url, function(err, db) {
         '&redirect_uri=' + encodeURIComponent(baseUrl+"/spotify"));
     else{
       spotify.addUser(req.cookies.userSession,query.code);
-      res.sendFile(__dirname +'/html/close.html')
+      res.redirect('/account');
     }
 
+  });
+
+  app.get('/anilist', function(req, res) {
+    var query = require('url').parse(req.url,true).query;
+    if(query.code==undefined)
+      res.redirect('https://anilist.co/api/v2/oauth/authorize?client_id=1003&redirect_uri='
+      +encodeURIComponent(baseUrl+'/anilist')
+      +'&response_type=code');
+    else{
+      res.redirect('/account');
+    }
   });
 
   //Socket listener
@@ -427,6 +437,26 @@ MongoClient.connect(url, function(err, db) {
         }
       });
 
+    });
+
+    socket.on('albumartrequest', function(type){
+      //FInds 10 random covers to put on he viewers screen
+
+      var collection = songCollection;
+
+      if (type=='anime'){
+        collection=animeCollection;
+      }
+
+      collection.aggregate([{$match:{ popularity: {$gte: 90}, coverart: {$not: {$eq: undefined}}}},{$sample: {size: 10}}]).toArray().then(function(arr) {
+        var covers = [];
+        arr.forEach(item => {
+          if(item) {
+            covers.push(item.coverart);
+          }
+        });
+        socket.emit('albumartresponse',covers);
+      });
     });
 
     socket.on('changename', function(sessionId,newName) {
@@ -811,6 +841,29 @@ MongoClient.connect(url, function(err, db) {
         }
       });
     });
+
+    //ACCOUNT OPTIONS
+
+    socket.on('disconnect-spotify', function(userSession) {
+      accounts.checkUserSession(userSession).then(account => {
+        if (account == null) return;
+        account.spotifyToken=null;
+        account.spotifyAccount=null;
+        account.spotifyPlaylist = [];
+        users.save(account);
+      });
+    });
+
+    socket.on('disconnect-anilist', function(userSession) {
+      accounts.checkUserSession(userSession).then(account => {
+        if (account == null) return;
+        account.anilistAccount=null;
+        account.anilistPlaylist = [];
+        users.save(account);
+      });
+    });
+
+    //PRESET OPTIONS
 
     socket.on('savepresetdescription', function(userSession,presetId,newDescription){
       accounts.checkUserSession(userSession).then(account => {

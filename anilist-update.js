@@ -13,10 +13,11 @@ MongoClient.connect(url, function(err, dbo) {
   db = dbo.db("shamradio");
   animelist = db.collection("Animelist");
   animetest = db.collection("AnimeTest");
-  animelist.find({tags: null}).toArray().then(function(array){
-    array.forEach(song => {
-      song.tags = ['Other'];
-      animelist.save(song);
-    });
+  animelist.aggregate([{$match: {songid: {$not: {$eq: 'dupe'}}, popularity: {$gte:90}}} ,{$sample: {size: 10}}]).toArray().then(function(doc){
+    console.log(doc);
+    doc.forEach(song => {
+      anilist.updateShow(song);
+    })
+
   });
 });

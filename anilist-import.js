@@ -215,6 +215,9 @@ function getTopShows(page_count, per_page) {
           year
         }
         genres
+        coverImage {
+          large
+        }
         studios(isMain: true) {
           edges {
             node {
@@ -274,6 +277,9 @@ function updateShow(show) {
       popularity
       averageScore
       genres
+      coverImage {
+        large
+      }
       studios(isMain: true) {
         edges {
           node {
@@ -317,7 +323,8 @@ function updateShow(show) {
     show.averageScore = data.data.Media.averageScore;
     show.tags = data.data.Media.genres;
     show.studio = data.data.Media.studios.edges[0].node.name;
-    //console.log(show.series, show.popularity);
+    show.coverart = data.data.Media.coverImage.large;
+    console.log(show);
     animeCollection.save(show);
   }
 
@@ -327,116 +334,119 @@ function updateShow(show) {
 }
 
 function addShow(data) {
-  //console.log(data);
-  var song = undefined;
-    fetch('https://myanimelist.net/anime/'+data.idMal)
+  try {
+    var song = undefined;
+      fetch('https://myanimelist.net/anime/'+data.idMal)
 
-      .then(function(response) {
-        if (response.status >= 400) {
-            throw new Error("Bad response from server");
-        }
-        return response.text();
-      })
-
-      .then(function (body) {
-        try {
-          var openingSongs = [];
-          //Find all the titles of the series
-          var alltitles = [];
-          alltitles.push(data.title.english);
-          data.synonyms.forEach(function(name) {
-            alltitles.push(name)
-          });
-          if (alltitles.indexOf(null)==0){
-            alltitles.shift();
+        .then(function(response) {
+          if (response.status >= 400) {
+              throw new Error("Bad response from server");
           }
-
-          getOped('op',0);
-          getOped('ed',1);
-
-          function getOped(oped,num) {
-            var openings=body.split('<div class="theme-songs js-theme-songs ending">')[num].split('<span class="theme-song">');
-            var tags = data.genres;
-            tags.push('Other');
-
-            for (var i=1; i< openings.length; i++) {
-              op = openings[i].split("</span>")[0];
-              var number = op.split("&quot;")[0].split("#").join('').split(":").join('').trim();
-              var name = op.split("&quot;")[1].trim();
-              var artist = op.split("&quot;")[2].split(" by ")[1].split(" (ep")[0].trim();
-              var studio = undefined;
-              try {
-                studio = data.studios.edges[0].node.name;
-              } catch(err) {}
-
-
-              //Create the song object
-              song = {
-                songid: (oped+"#"+data.id+"#"+number),
-                idMal: ("mal#"+data.idMal),
-                idAlist: ("alist#"+data.id),
-                name: name,
-                series: data.title.romaji,
-                artist: artist,
-                opNumber: number,
-                coverart: undefined,
-                url: "Unknown",
-                popularity: (1-(1-(data.popularity*1.0)/mostPopular)**5)*100,
-                year: parseInt(data.startDate.year),
-                type: "Unknown",
-                alternateNames: alltitles,
-                averageScore: data.averageScore,
-                ending:(oped=='ed'),
-                tags: tags,
-                studio: studio,
-                wins: 1.0,
-                losses: 1.0,
-                ratio: 1.0,
-              };
-              openingSongs.push(song);
+          return response.text();
+        })
+        .then(function (body) {
+          try {
+            var openingSongs = [];
+            //Find all the titles of the series
+            var alltitles = [];
+            alltitles.push(data.title.english);
+            data.synonyms.forEach(function(name) {
+              alltitles.push(name)
+            });
+            if (alltitles.indexOf(null)==0){
+              alltitles.shift();
             }
 
-          }
+            getOped('op',0);
+            getOped('ed',1);
 
-          alltitles.push(data.title.romaji);
+            function getOped(oped,num) {
+              var openings=body.split('<div class="theme-songs js-theme-songs ending">')[num].split('<span class="theme-song">');
+              var tags = data.genres;
+              tags.push('Other');
 
-          //Adds the song
-          openingSongs.forEach(function(song){
-            animeTestCollection.findOne({songid: song.songid}).then(function(colldata, err){
-              if (err) console.log(err);
-              if(colldata==null) {
-                //console.log(song);
-                animeCollection.findOne({songid: song.songid}).then(function(colldata, err){
-                  if (err) console.log(err);
-                  if(colldata==null) {
-                    animeTestCollection.insert(song);
-                  }
-                  else {
-                    animeCollection.updateMany(
-                      {idAlist: song.idAlist},
-                      {$set: {
-                        averageScore: song.averageScore,
-                        studio: song.studio,
-                        tags: song.tags
-                      }
-                    });
-                  }
-                });
+              for (var i=1; i< openings.length; i++) {
+                op = openings[i].split("</span>")[0];
+                var number = op.split("&quot;")[0].split("#").join('').split(":").join('').trim();
+                var name = op.split("&quot;")[1].trim();
+                var artist = op.split("&quot;")[2].split(" by ")[1].split(" (ep")[0].trim();
+                var studio = undefined;
+                try {
+                  studio = data.studios.edges[0].node.name;
+                } catch(err) {}
+
+
+                //Create the song object
+                song = {
+                  songid: (oped+"#"+data.id+"#"+number),
+                  idMal: ("mal#"+data.idMal),
+                  idAlist: ("alist#"+data.id),
+                  name: name,
+                  series: data.title.romaji,
+                  artist: artist,
+                  opNumber: number,
+                  coverart: data.coverImage.large,
+                  url: "Unknown",
+                  popularity: (1-(1-(data.popularity*1.0)/mostPopular)**5)*100,
+                  year: parseInt(data.startDate.year),
+                  type: "Unknown",
+                  alternateNames: alltitles,
+                  averageScore: data.averageScore,
+                  ending:(oped=='ed'),
+                  tags: tags,
+                  studio: studio,
+                  wins: 1.0,
+                  losses: 1.0,
+                  ratio: 1.0,
+                };
+                openingSongs.push(song);
               }
-            });
-          });
 
-          //Adds the dupes
-          alltitles.forEach(function(thisTitle){
-            animeCollection.findOne({series: thisTitle}).then(function(colldata, err){
-              if (err) console.log(err);
-              if(colldata==null) {
-                animeCollection.insert({songid: "dupe", series: thisTitle});
-              }
+            }
+
+            alltitles.push(data.title.romaji);
+
+            //Adds the song
+            openingSongs.forEach(function(song){
+              animeTestCollection.findOne({songid: song.songid}).then(function(colldata, err){
+                if (err) console.log(err);
+                if(colldata==null) {
+                  //console.log(song);
+                  animeCollection.findOne({songid: song.songid}).then(function(colldata, err){
+                    if (err) console.log(err);
+                    if(colldata==null) {
+                      animeTestCollection.insert(song);
+                    }
+                    else {
+                      animeCollection.updateMany(
+                        {idAlist: song.idAlist},
+                        {$set: {
+                          averageScore: song.averageScore,
+                          studio: song.studio,
+                          tags: song.tags
+                        }
+                      });
+                    }
+                  });
+                }
+              });
             });
-          });
-        } catch (err) {}
-      });
+
+            //Adds the dupes
+            alltitles.forEach(function(thisTitle){
+              animeCollection.findOne({series: thisTitle}).then(function(colldata, err){
+                if (err) console.log(err);
+                if(colldata==null) {
+                  animeCollection.insert({songid: "dupe", series: thisTitle});
+                }
+              });
+            });
+          } catch (err) {}
+        });
+  }
+  catch(err) {}
+  //console.log(data);
+
 }
 // Define our query variables and values that will be used in the query request
 
@@ -461,4 +471,4 @@ setInterval(function(){
   else {
     anilisti=0;
   }
-},20000);
+},40000);

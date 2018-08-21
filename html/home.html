@@ -8,23 +8,44 @@
 <style>
   @import url("/css/style.css");
   @import url("/css/home.css");
+  #mainscreen{display: none;}
 </style>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <body lang="en">
     <div id="header">
-      <a id="sitename" href="/"><img id="logo" src="/img/logo.png" height="70px"/>Shamradio</a>
-      <button class='login-button' id="login-button" onclick="window.location.href = '/login';">Login</button>
-      <button class='login-button' id="account-button" onclick="window.location.href = '/account';"><img src="/img/account.png" height="20px"/></button>
+      <a id="sitename" href="/"><img id="logo" src="/img/logo.png" height="50px"/>Shamradio</a>
+      <div style = "float:right;display:flex;">
+        <div class = 'dropdown'>
+          <div class = 'dropbtn'> About</div>
+          <div class="dropdown-content">
+            <a href="https://github.com/timcallies/shamradio">GitHub</a>
+            <a href="https://twitter.com/sirhatsley?lang=en">Twitter</a>
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin-bottom: -5px;">
+              <input type="hidden" style="height:auto; border-bottom:none;" name="cmd" value="_s-xclick">
+              <input type="hidden" style="height:auto; border-bottom:none;" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+              ">
+              <input type="image" style="height:auto; border-bottom:none;" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+              <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+            </form>
+          </div>
+        </div>
+        <button class='login-button' id="login-button" onclick="window.location.href = '/login';">Login</button>
+        <button class='login-button' id="account-button" onclick="window.location.href = '/account';"><img src="/img/account.png" height="20px"/></button>
+      </div>
     </div>
-    <div id="mainscreen">
-      <div id="gameselect">
+    <div id="gameselect">
+      <div id="button-screen">
         <div id=button-group class="flex-container">
           <button class="bigger-button" onclick="playOnline()" style="flex-grow:1;">Play Online</button>
-        <button class="big-button" onclick="hostLocal()">Host Local</button>
-        <button class="big-button" onclick="playLocal()">Play Local</button>
+          <button class="big-button" onclick="hostLocal()">Host Local</button>
+          <button class="big-button" onclick="playLocal()">Play Local</button>
+          <button class="down-button" onclick="scrollDown()"><center><div class='downarrow'>V</div></center></button>
         </div>
-        <div id = 'description'>
+      </div>
+      <div id = 'description' style="background:gray;">
+        <div style = "padding: 20px;background:darkgray; padding-left:10%; padding-right:10%;">
           <h2>What is Shamradio?</h2>
           Shamradio is an online party game that gives players the chance to test their music knowledge against their friends. <br><br>
           The game contains two main modes: <b>Online</b> and <b>Local</b>. <br>
@@ -39,23 +60,30 @@
             </div>
           </span>
           <br><br>
-
+        </div>
+        <div style = "padding: 20px;background:gray; padding-left:10%; padding-right:10%;">
           <h2>Play it your way!</h2>
           Shamradio features ex&shy;tensive cutsom&shy;ization op&shy;tions that allows anyone to easily create their ideal playlist. It can also be played on any device with an Internet Browser, including desktops, mobile devices, and even consoles.<br><br>
           The game also features <b>Music</b> and <b>Anime</b> playlists. <br>
           <span class="row">
             <div class="column">
-              <h1>Music</h1> mode can import a players's tracks from <b>Spotify</b>, and it allows players to guess songs by their Title, Artist, or Album.<br>
+              <h1>Music</h1> This mode can import a players's tracks from <b>Spotify</b>, and it allows players to guess songs by their Title, Artist, or Album.<br>
             </div>
             <div class="column">
               <h1>Anime</h1>
               This mode finds a player's watched shows from <b>Anilist</b>, and it allows players to guess songs by their Series, Title, or Artist.
             </div>
           </span>
-
         </div>
+
       </div>
+    </div>
+    <div id="mainscreen">
+      <div id='mainscreenback' onclick='goBack()'>Back</div>
       <div id=server-browser>
+        <div class='mainscreenheader'>
+          Play an Online Game
+        </div>
         <div id="create-server" style="background:gray;display:flex;flex-wrap: wrap;">
           <input id="servername" placeholder="Server Name" autocomplete="off" autocapitalize="off" style="flex-grow: 1; width:200px;">
           <input id="password" placeholder="Password (Optional)" autocomplete="off" autocapitalize="off" style="flex-grow: 1; width:200px;">
@@ -68,27 +96,32 @@
 
         </ul>
       </div>
-
       <div id="host-input" style="display:none;">
-        <input id="hostname" placeholder="Host ID" autocomplete="off" autocapitalize="off"/>
-        <button onclick="connectLocal()" >Connect</button>
+        <div class='mainscreenheader'>
+          Join a Local Game
+        </div>
+        <div style='color: white; display:inline-flex; padding: 2em;'>
+          <input id="hostname" placeholder="Host ID" autocomplete="off" autocapitalize="off"/>
+          <button onclick="connectLocal()" >Connect</button>
+        </div>
+        <span class="row">
+          <div class="column">
+            <h1>Host ID</h1>
+            Enter the 4-character code on the host's screen into the text-box above.
+          </div>
+          <div class="column">
+            <h1>QR</h1>
+            Use any QR app on your iPhone/Android device to scan the code on the host's screen.
+          </div>
+        </span>
       </div>
 
     </div>
-    <div id="mainscreen-bg"></div>
-    <footer id="footer">
-      <a href="https://github.com/timcallies/shamradio">GitHub</a>
-      <a href="https://twitter.com/sirhatsley?lang=en">Twitter</a>
-      <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin-bottom: -5px;">
-        <input type="hidden" style="height:auto; border-bottom:none;" name="cmd" value="_s-xclick">
-        <input type="hidden" style="height:auto; border-bottom:none;" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
-        ">
-        <input type="image" style="height:auto; border-bottom:none;" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-        <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-      </form>
-    </footer>
-
     <script src="/scripts/home.js"></script>
     <script src="/scripts/playlistSelect.js"></script>
+
   </body>
+  <div id="albumartscroll">
+
+  </div>
 </html>
