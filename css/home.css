@@ -165,3 +165,7 @@ li{
   opacity: .1;
   top: 0px;
 }
+
+.serverItem {
+  color: black;
+}

@@ -109,7 +109,9 @@
       }
 
       socket.on('loginresponse', function(userSession){
-        document.cookie = "userSession="+userSession;
+        var expireTime = new Date();
+        expireTime.setTime(+expireTime + 365 * 86400000);
+        document.cookie = "userSession="+userSession+"; expires="+expireTime.toGMTString()+";path=/";
 
         if(redirect==null) {
           window.location.href = "/account";

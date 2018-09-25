@@ -452,7 +452,7 @@ MongoClient.connect(url, function(err, db) {
         collection=animeCollection;
       }
 
-      collection.aggregate([{$match:{ popularity: {$gte: 90}, coverart: {$not: {$eq: undefined}}}},{$sample: {size: 10}}]).toArray().then(function(arr) {
+      collection.aggregate([{$match:{ popularity: {$gte: 50}, coverart: {$not: {$eq: undefined}}}},{$sample: {size: 10}}]).toArray().then(function(arr) {
         var covers = [];
         arr.forEach(item => {
           if(item) {
@@ -737,7 +737,7 @@ MongoClient.connect(url, function(err, db) {
       return new Promise(resolve => {
         accounts.checkUserSession(userSession).then(account => {
           var presets = [];
-          presetCollection.find({id: {$in: ['1','2','3']}}).toArray().then(defaultPresets => {
+          presetCollection.find({id: {$in: ['1','2','3','4','5']}}).toArray().then(defaultPresets => {
             presets.push(defaultPresets);
             if (account == null) {
               presets.push([]);

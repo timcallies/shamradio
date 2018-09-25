@@ -75,8 +75,9 @@ function settingsContainer(container) {
     });
 
     $("#music-mode").click(function() {
-      $(".music-settings").css("display","block");
       $(".anime-settings").css("display","none");
+      $(".music-settings").css("display","block");
+      $(".youtube-settings").css("display","none");
       updateImport();
     });
 
@@ -102,6 +103,14 @@ function settingsContainer(container) {
     $("#anime-mode").click(function() {
       $(".music-settings").css("display","none");
       $(".anime-settings").css("display","block");
+      $(".youtube-settings").css("display","none");
+      updateImport();
+    });
+
+    $("#youtube-mode").click(function() {
+      $(".music-settings").css("display","none");
+      $(".anime-settings").css("display","none");
+      $(".youtube-settings").css("display","block");
       updateImport();
     });
 
@@ -253,9 +262,15 @@ function getSettings(){
     });
   }
 
+  if ($('input[name=radio]:checked').val() == 'youtube-mode')
+  {
+    thisMatchBy = $("#settings-guess-youtube").val();
+  }
+
   console.log($('input[name=radio]:checked').val());
   var options = {
     mode:$('input[name=radio]:checked').val(),
+    url:$('#playlist-url').val(),
     matchBy:thisMatchBy,
     songs:$( "#songs-range" ).slider( "values", 1 ),
     length:$( "#length-range" ).slider( "values", 1 ),
@@ -288,42 +303,55 @@ function getSettingsAsText(options) {
   var output='';
 
   //mode
-  if (options.mode=='music-mode') {
-    output+="Mode: Music\n";
-    if (options.importFromSpotify) {
-      output+="(Import your playlist from Spotify)\n";
-      output+="Import mode: "+options.importMode.toProperCase()+"\n";
+  if (options.mode=='youtube-mode') {
+    output+="Mode: YouTube\n";
+    output+=("Playlist URL: \n" + options.url);
+    output+="\n-Round Options-\n";
+    output+=("Match by: "+options.matchBy.toProperCase()+"\n");
+    output+=("Number of rounds: "+options.songs+"\n");
+    output+=("Round time limit: "+options.length+"\n");
+  }
+
+  else {
+    if (options.mode=='music-mode') {
+      output+="Mode: Music\n";
+      if (options.importFromSpotify) {
+        output+="(Import your playlist from Spotify)\n";
+        output+="Import mode: "+options.importMode.toProperCase()+"\n";
+      }
+    }
+
+    if (options.mode=='anime-mode') {
+      output+="Mode: Anime\n";
+      if (options.importFromAnilist) {
+        output+="(Import your list from Anilist)\n";
+        output+="Import mode: "+options.importMode.toProperCase()+"\n";
+      }
+    }
+
+    output+="\n-Round Options-\n";
+    output+=("Match by: "+options.matchBy.toProperCase()+"\n");
+    output+=("Number of rounds: "+options.songs+"\n");
+    output+=("Round time limit: "+options.length+"\n");
+
+    output+="\n-Filter Options-\n";
+    output+=("Popularity: "+options.difficultyMin+'-'+options.difficultyMax+'\n');
+    output+=("Year of release: "+options.ageMin+'-'+options.ageMax+'\n');
+    if (options.mode=='anime-mode'){
+      output+=("Openings/Endings: "+options.oped.toProperCase()+'\n');
+      output+=("Average score: "+options.avgScoreMin+'-'+options.avgScoreMax+'\n');
+      if (options.importFromAnilist)
+        output+=("Player score: "+options.scoreMin+'-'+options.scoreMax+'\n');
+    }
+    if (options.mode=='music-mode' && options.tags.length != genres.length) {
+      output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));
+    }
+    if (options.mode=='anime-mode' && options.tags.length != genresAnime.length) {
+      output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));
     }
   }
 
-  if (options.mode=='anime-mode') {
-    output+="Mode: Anime\n";
-    if (options.importFromAnilist) {
-      output+="(Import your list from Anilist)\n";
-      output+="Import mode: "+options.importMode.toProperCase()+"\n";
-    }
-  }
 
-  output+="\n-Round Options-\n";
-  output+=("Match by: "+options.matchBy.toProperCase()+"\n");
-  output+=("Number of rounds: "+options.songs+"\n");
-  output+=("Round time limit: "+options.length+"\n");
-
-  output+="\n-Filter Options-\n";
-  output+=("Popularity: "+options.difficultyMin+'-'+options.difficultyMax+'\n');
-  output+=("Year of release: "+options.ageMin+'-'+options.ageMax+'\n');
-  if (options.mode=='anime-mode'){
-    output+=("Openings/Endings: "+options.oped.toProperCase()+'\n');
-    output+=("Average score: "+options.avgScoreMin+'-'+options.avgScoreMax+'\n');
-    if (options.importFromAnilist)
-      output+=("Player score: "+options.scoreMin+'-'+options.scoreMax+'\n');
-  }
-  if (options.mode=='music-mode' && options.tags.length != genres.length) {
-    output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));
-  }
-  if (options.mode=='anime-mode' && options.tags.length != genresAnime.length) {
-    output+=(("Tags: "+options.tags).replace(/,/g, ",\t"));
-  }
 
   return output;
 }
@@ -393,11 +421,18 @@ function refreshButtons() {
 function checkMode() {
   if ($('input[name=radio]:checked').val() == 'anime-mode') {
     $(".music-settings").css("display","none");
+    $(".youtube-settings").css("display","none");
     $(".anime-settings").css("display","block");
   }
-  else {
-    $(".music-settings").css("display","block");
+  if ($('input[name=radio]:checked').val() == 'music-mode') {
     $(".anime-settings").css("display","none");
+    $(".youtube-settings").css("display","none");
+    $(".music-settings").css("display","block");
+  }
+  if ($('input[name=radio]:checked').val() == 'youtube-mode') {
+    $(".anime-settings").css("display","none");
+    $(".youtube-settings").css("display","block");
+    $(".music-settings").css("display","none");
   }
 }
 
@@ -495,6 +530,7 @@ function refreshSettings(hostsettings) {
   $('#settings-select-mode').find('input[value="'+hostsettings.mode+'"]').prop("checked", true);
   $('.select-playlist').text(findNameById(hostsettings.presetId));
   $('#preset-name > input').val(findNameById(hostsettings.presetId));
+  $('#playlist-url').val(hostsettings.url);
   if(hostsettings.mode == 'music-mode')
     $('#settings-guess-music').val(hostsettings.matchBy);
   if(hostsettings.mode == 'anime-mode')

@@ -44,7 +44,6 @@ function updateGuessChoices(tags,query) {
   if(query==$('#guess-textbox').val())
   {
     var listElement = document.getElementById('possiblechoices');
-    var listElement = document.getElementById("chat-messages");
     listElement.scrollTop = listElement.scrollHeight;
     $("#possiblechoices").empty();
     $("#possiblechoices").css("display","block");
